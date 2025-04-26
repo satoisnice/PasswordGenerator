@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # If you dont have python idk install it pls
 # https://ww.python.org/downloads/
 #
@@ -6,3 +7,7 @@
 #
 # If you dont have pip, you can install it by following the instructions from
 # https://pip.pypa.io/en/stable/installation/
+=======
+# PasswordGenerator
+Group 15 project
+>>>>>>> d8029af263c8e9b5074b630e114e58b698e7887c
