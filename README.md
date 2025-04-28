@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # If you dont have python idk install it pls
 https://ww.python.org/downloads/
 
@@ -10,7 +9,6 @@ https://pip.pypa.io/en/stable/installation/
 
 # To test it out
 `py app.py` 
-=======
+
 # PasswordGenerator
 Group 15 project
->>>>>>> d8029af263c8e9b5074b630e114e58b698e7887c
