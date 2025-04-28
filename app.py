@@ -1,4 +1,6 @@
 import random
+import csv
+from pathlib import Path
 import sys
 try:
     import colorama
@@ -17,23 +19,45 @@ CHARACTERS = [
 
 class Password:
     def __init__(self):
-        self.length =  self.get_inputs()
-        self.password = self.genPW() 
+        self.length, self.service, self.username =  self.get_inputs()
+        self.password = self.gen_pw() 
+         
 
     def get_inputs(self):
         while True:
             try:
+                service = input("For which service is this password for?\n")
+                username = input("Enter username:\n")
                 pw_len = int(input("Type desired length of the password (8 character minimum):"))
                 if pw_len < 8:
                     print("Password must be at least 8 characters.")
                 else:
-                    return pw_len
+                    return pw_len, service, username
             except ValueError as e:
                 print("Enter a valid number for password length")
 
-    def genPW(self):
+    def gen_pw(self):
         password = "".join(random.choice(CHARACTERS) for _ in range(self.length))
         return password
+    
+    def save_pw(self):
+        pass_file = Path("passwords.csv")
+        print("what is this", pass_file)
+        if pass_file.is_file():
+            with open(pass_file, 'a') as file:
+                data = csv.writer(file)
+                data.writerow([self.service, self.username, self.password])
+
+        else:
+            pass_file.touch(exist_ok=True)
+            with open(pass_file, 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["service", "username", "password"])
+                writer.writerow([self.service, self.username, self.password])
+
+
+
+            
 
 if __name__ == "__main__":
     a = Password()
@@ -42,3 +66,4 @@ if __name__ == "__main__":
     print(colorama.Fore.MAGENTA + a.password)
     sys.stdout.write(colorama.Style.RESET_ALL)
     print("\nyou can now copy your password, keep it safe i aint saving it")
+    a.save_pw()
