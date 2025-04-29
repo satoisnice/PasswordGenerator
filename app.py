@@ -18,6 +18,30 @@ CHARACTERS = [
 ]
 
 class Password:
+    '''
+    A class to represent a password.
+
+    ...
+
+    Attributes
+    ----------
+    length: int
+        length of the password 
+    service: str
+        the service the password is used for
+    username: str
+        the username the password is used for
+    
+    Methods
+    -------
+    get_inputs():
+        obtains length, service, and username from the user
+    gen_pw():
+        returns a randomly generated password based on length
+    save_pw():
+        saves password to passwords.csv file
+    
+    '''
     def __init__(self):
         self.length, self.service, self.username =  self.get_inputs()
         self.password = self.gen_pw() 
@@ -55,7 +79,15 @@ class Password:
                 writer.writerow([self.service, self.username, self.password])
 
 def view_pass(username, service):
-    """Takes a username and service and returns a password from passwords.csv"""
+    '''
+    Takes a username and service and returns a password from passwords.csv
+
+            Parameters:
+                    username (string): A username for some service
+                    service  (string): The service (gmail, icloud, etc..)
+            Returns:
+                    profile['password'] (str): String containing the password matching the username and service.
+    '''
     with open("passwords.csv", 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
