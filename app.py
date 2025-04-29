@@ -55,7 +55,12 @@ class Password:
                 writer.writerow(["service", "username", "password"])
                 writer.writerow([self.service, self.username, self.password])
 
-
+def view_pass(username, service):
+    with open("passwords.csv", 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if username or service in row:
+                return row
 
             
 
@@ -67,3 +72,4 @@ if __name__ == "__main__":
     sys.stdout.write(colorama.Style.RESET_ALL)
     print("\nyou can now copy your password, keep it safe i aint saving it")
     a.save_pw()
+    print(view_pass(a.username, a.service))
