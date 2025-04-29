@@ -1,3 +1,6 @@
+# pwtool 
+Group 15 project
+
 # If you dont have python idk install it pls
 https://ww.python.org/downloads/
 
@@ -9,6 +12,3 @@ https://pip.pypa.io/en/stable/installation/
 
 # To test it out
 `py app.py` 
-
-# PasswordGenerator
-Group 15 project
