@@ -1,16 +1,4 @@
 import csv
-import sys
-try:
-    import colorama
-except ImportError:
-    import subprocess
-    print("colorama not found. Installing...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
-    import colorama
-from models import Password
-from storage import view_pass
-
-
 
 def view_pass(username, service):
     '''
@@ -32,15 +20,3 @@ def view_pass(username, service):
                     "password": row["password"] 
                 }
                 return profile['password']
-
-            
-
-if __name__ == "__main__":
-    a = Password()
-    print(f"length of your password: {a.length}\n")
-    print("Generated password:")
-    print(colorama.Fore.MAGENTA + a.password)
-    sys.stdout.write(colorama.Style.RESET_ALL)
-    print("\nyou can now copy your password, keep it safe i aint saving it")
-    a.save_pw()
-    print(view_pass(a.username, a.service))
