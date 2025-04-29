@@ -42,7 +42,6 @@ class Password:
     
     def save_pw(self):
         pass_file = Path("passwords.csv")
-        print("what is this", pass_file)
         if pass_file.is_file():
             with open(pass_file, 'a') as file:
                 data = csv.writer(file)
@@ -56,11 +55,17 @@ class Password:
                 writer.writerow([self.service, self.username, self.password])
 
 def view_pass(username, service):
+    """Takes a username and service and returns a password from passwords.csv"""
     with open("passwords.csv", 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
             if username or service in row:
-                return row
+                profile = {
+                    "service": row["service"],
+                    "username": row["username"],
+                    "password": row["password"] 
+                }
+                return profile['password']
 
             
 
