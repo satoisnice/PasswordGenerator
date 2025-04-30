@@ -13,9 +13,6 @@ from models import Password
 from storage import view_pass
 
 def main():
-    pwtool = pyfiglet.figlet_format("pwtool")
-    print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
-    print("pwtool is a CLI utility for managing passwords.")
     action = inquirer.select(
         message="Select an action:",
         choices=[
@@ -45,7 +42,8 @@ def main():
             choices=[
                 "View password",
                 Choice(value="exec edit_pw",name="edit password"),
-                Choice(value="exec del_pw", name="Delete password")
+                Choice(value="exec del_pw", name="Delete password"),
+                "Exit"
             ],
         ).execute() 
         if action2 == "View password":
@@ -62,10 +60,18 @@ def main():
             #To-Do
 
             pass
+
+        if action2 == "Exit":
+            print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
+            sys.exit(0)
         
 
 if __name__ == "__main__":
-    try:
-        main() 
-    except KeyboardInterrupt as e:
-        print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
+    pwtool = pyfiglet.figlet_format("pwtool")
+    print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
+    print("pwtool is a CLI utility for managing passwords.")
+    while True:
+        try:
+            main() 
+        except KeyboardInterrupt as e:
+            print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
