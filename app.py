@@ -1,7 +1,9 @@
-import csv
 import sys
 try:
     import colorama
+    import pyfiglet
+    from InquirerPy import inquirer
+    from InquirerPy.base.control import Choice
 except ImportError:
     import subprocess
     print("colorama not found. Installing...")
@@ -10,37 +12,55 @@ except ImportError:
 from models import Password
 from storage import view_pass
 
+def main():
+    pwtool = pyfiglet.figlet_format("pwtool")
+    print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
+    print("pwtool is a CLI utility for managing passwords.")
+    action = inquirer.select(
+        message="Select an action:",
+        choices=[
+            "Generate password",
+            "Select password",
+            Choice(value=None, name="Exit"),
+        ],
+        default="Select password",
+    ).execute()
 
+    if action == "Generate password":
+        a = Password()
+        print(f"length of your password: {a.length}\n")
+        print("Generated password:")
+        print(colorama.Fore.MAGENTA + a.password)
+        sys.stdout.write(colorama.Style.RESET_ALL)
+        print("\nyou can now copy your password, keep it safe")
+        a.save_pw()
 
-def view_pass(username, service):
-    '''
-    Takes a username and service and returns a password from passwords.csv
+    if action == "Select password":
+        action2 = inquirer.select(
+            message="Select action:",
+            choices=[
+                "View password",
+                Choice(value="exec edit_pw",name="edit password"),
+                Choice(value="exec del_pw", name="Delete password")
+            ],
+        ).execute() 
+        if action2 == "View password":
+            username = inquirer.text(message="Enter username:").execute()
+            service = inquirer.text(message="Enter the service:").execute()
+            view_pass(service, username)
+        
+        if action2 == "Edit password":
+            #To-Do
+            pass
 
-            Parameters:
-                    username (string): A username for some service
-                    service  (string): The service (gmail, icloud, etc..)
-            Returns:
-                    profile['password'] (str): String containing the password matching the username and service.
-    '''
-    with open("passwords.csv", 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if username or service in row:
-                profile = {
-                    "service": row["service"],
-                    "username": row["username"],
-                    "password": row["password"] 
-                }
-                return profile['password']
+        if action2 == "Delete password":
+            #To-Do
 
-            
+            pass
+        
 
 if __name__ == "__main__":
-    a = Password()
-    print(f"length of your password: {a.length}\n")
-    print("Generated password:")
-    print(colorama.Fore.MAGENTA + a.password)
-    sys.stdout.write(colorama.Style.RESET_ALL)
-    print("\nyou can now copy your password, keep it safe i aint saving it")
-    a.save_pw()
-    print(view_pass(a.username, a.service))
+    try:
+        main() 
+    except KeyboardInterrupt as e:
+        print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
