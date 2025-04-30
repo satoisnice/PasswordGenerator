@@ -41,7 +41,7 @@ def main():
             message="Select action:",
             choices=[
                 "View password",
-                Choice(value="exec edit_pw",name="edit password"),
+                "Edit password",
                 Choice(value="exec del_pw", name="Delete password"),
                 "Exit"
             ],
@@ -52,9 +52,9 @@ def main():
             view_pass(username, service)
         
         if action2 == "Edit password":
-            #To-Do
-
-            pass
+            username = inquirer.text(message="Enter username:").execute()
+            service = inquirer.text(message="Enter the service:").execute()
+            edit_pass(username, service)
 
         if action2 == "Delete password":
             #To-Do
