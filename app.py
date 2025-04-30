@@ -21,10 +21,14 @@ def main():
         choices=[
             "Generate password",
             "Select password",
-            Choice(value=None, name="Exit"),
+            "Exit"
         ],
         default="Select password",
     ).execute()
+
+    if action == "Exit":
+        print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
+        sys.exit(0)
 
     if action == "Generate password":
         a = Password()
@@ -51,6 +55,7 @@ def main():
         
         if action2 == "Edit password":
             #To-Do
+
             pass
 
         if action2 == "Delete password":
