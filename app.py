@@ -47,7 +47,7 @@ def main():
         if action2 == "View password":
             username = inquirer.text(message="Enter username:").execute()
             service = inquirer.text(message="Enter the service:").execute()
-            view_pass(service, username)
+            view_pass(username, service)
         
         if action2 == "Edit password":
             #To-Do
