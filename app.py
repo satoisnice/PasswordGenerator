@@ -13,18 +13,19 @@ from models import Password
 from storage import view_pass, edit_pass
 
 def main():
-    pwtool = pyfiglet.figlet_format("pwtool")
-    print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
-    print("pwtool is a CLI utility for managing passwords.")
     action = inquirer.select(
         message="Select an action:",
         choices=[
             "Generate password",
             "Select password",
-            Choice(value=None, name="Exit"),
+            "Exit"
         ],
         default="Select password",
     ).execute()
+
+    if action == "Exit":
+        print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
+        sys.exit(0)
 
     if action == "Generate password":
         a = Password()
@@ -40,8 +41,9 @@ def main():
             message="Select action:",
             choices=[
                 "View password",
-                "Edit password",
-                Choice(value="exec del_pw", name="Delete password")
+                Choice(value="exec edit_pw",name="edit password"),
+                Choice(value="exec del_pw", name="Delete password"),
+                "Exit"
             ],
         ).execute() 
         if action2 == "View password":
@@ -50,19 +52,26 @@ def main():
             view_pass(username, service)
         
         if action2 == "Edit password":
-            username = inquirer.text(message="Enter username:").execute()
-            service = inquirer.text(message="Enter the service:").execute()
-            # print statement to show the output
-            edit_pass(username, service)
+            #To-Do
+
+            pass
 
         if action2 == "Delete password":
             #To-Do
 
             pass
+
+        if action2 == "Exit":
+            print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
+            sys.exit(0)
         
 
 if __name__ == "__main__":
-    try:
-        main() 
-    except KeyboardInterrupt as e:
-        print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
+    pwtool = pyfiglet.figlet_format("pwtool")
+    print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
+    print("pwtool is a CLI utility for managing passwords.")
+    while True:
+        try:
+            main() 
+        except KeyboardInterrupt as e:
+            print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
