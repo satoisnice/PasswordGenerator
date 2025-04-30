@@ -10,7 +10,7 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
     import colorama
 from models import Password
-from storage import view_pass
+from storage import view_pass, edit_pass
 
 def main():
     pwtool = pyfiglet.figlet_format("pwtool")
@@ -40,7 +40,7 @@ def main():
             message="Select action:",
             choices=[
                 "View password",
-                Choice(value="exec edit_pw",name="edit password"),
+                "Edit password",
                 Choice(value="exec del_pw", name="Delete password")
             ],
         ).execute() 
@@ -50,8 +50,10 @@ def main():
             view_pass(username, service)
         
         if action2 == "Edit password":
-            #To-Do
-            pass
+            username = inquirer.text(message="Enter username:").execute()
+            service = inquirer.text(message="Enter the service:").execute()
+            # print statement to show the output
+            edit_pass(username, service)
 
         if action2 == "Delete password":
             #To-Do
