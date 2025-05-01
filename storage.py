@@ -41,18 +41,19 @@ def edit_pass(username, service, option="autogenerate"):
     """
     # the updated rows
     new_rows = []
+    found = False
     # This will take the username and service of the user and give them a string.
     with open("passwords.csv", 'r') as file:
         reader = csv.DictReader(file)
 
         for row in reader:
             if row['username'] == username and row['service'] == service:
+                found = True
                 print(f"Current password: {row['password']}")
 
                 if option == "userinput":
                     #prompt the user to enter a new password
                     new_pass = input("Type in your new password: ")
-
                     if new_pass == '':
                         print("No changes made to password")
                         return
@@ -62,11 +63,12 @@ def edit_pass(username, service, option="autogenerate"):
                     print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pass}{colorama.Style.RESET_ALL}")
                     print("Keep it safe.")
 
-            else:
-                print(f" username: {username} and service: {service} was not found.")
-                return
             # append the updated values
+                row["password"] = new_pass
             new_rows.append(row)
+        if not found:
+            print(f" username: {username} and service: {service} was not found.")
+            return
 
     # actually edit the value
     with open("passwords.csv", 'w', newline='') as file2:
@@ -78,4 +80,14 @@ def edit_pass(username, service, option="autogenerate"):
     print("Password successfully changed")
 
 def delete_pass(username, service):
-    pass
+    rows_keep = []
+    with open("passwords.csv", "r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row["username"] != username and row["service"] != service:
+                rows_keep.append(row)
+    
+    with open("passwords.csv", "w") as wrt:
+        writer = csv.DictWriter(wrt, fieldnames=reader.fieldnames)
+        writer.writeheader()
+        writer.writerows(rows_keep)

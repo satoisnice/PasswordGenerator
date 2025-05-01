@@ -11,7 +11,7 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
     import colorama
 from models import Password
-from storage import view_pass, edit_pass
+from storage import view_pass, edit_pass, delete_pass
 
 def generate_and_save_password():
         a = Password()
@@ -68,9 +68,8 @@ def main():
         edit_pass(username, service, option=action)
 
     if action == "Delete password":
-        #To-Do
-        pass
-        
+        username, service = get_username_and_service()
+        delete_pass(username, service) 
 
 if __name__ == "__main__":
     pwtool = pyfiglet.figlet_format("pwtool")
