@@ -1,4 +1,5 @@
 import sys
+import time
 try:
     import colorama
     import pyfiglet
@@ -12,22 +13,7 @@ except ImportError:
 from models import Password
 from storage import view_pass, edit_pass
 
-def main():
-    action = inquirer.select(
-        message="Select an action:",
-        choices=[
-            "Generate password",
-            "Select password",
-            "Exit"
-        ],
-        default="Select password",
-    ).execute()
-
-    if action == "Exit":
-        print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
-        sys.exit(0)
-
-    if action == "Generate password":
+def generate_and_save_password():
         a = Password()
         print(f"length of your password: {a.length}\n")
         print("Generated password:")
@@ -36,42 +22,63 @@ def main():
         print("\nyou can now copy your password, keep it safe")
         a.save_pw()
 
-    if action == "Select password":
-        action2 = inquirer.select(
-            message="Select action:",
-            choices=[
-                "View password",
-                "Edit password",
-                Choice(value="exec del_pw", name="Delete password"),
-                "Exit"
-            ],
-        ).execute() 
-        if action2 == "View password":
-            username = inquirer.text(message="Enter username:").execute()
-            service = inquirer.text(message="Enter the service:").execute()
+def exit_app():
+    print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
+    time.sleep(1)
+    sys.exit(0)
+
+def get_username_and_service():
+    username = inquirer.text(message="Enter username:").execute()
+    service = inquirer.text(message="Enter the service:").execute()
+    return username, service
+
+def main():
+    action = inquirer.select(
+        message="Select an action:",
+        choices=[
+            "Generate password",
+            "View password",
+            "Edit password",
+            "Delete password",
+            "Exit"
+        ],
+        default="Select password",
+    ).execute()
+
+    if action == "Exit":
+       exit_app() 
+
+    if action == "Generate password":
+       generate_and_save_password()
+
+    if action == "View password":
+            username, service = get_username_and_service() 
             view_pass(username, service)
         
-        if action2 == "Edit password":
-            username = inquirer.text(message="Enter username:").execute()
-            service = inquirer.text(message="Enter the service:").execute()
-            edit_pass(username, service)
+    if action == "Edit password":
+        username = inquirer.text(message="Enter username:").execute()
+        service = inquirer.text(message="Enter the service:").execute()
+        action = inquirer.select(
+            message="Select action",
+            choices=[
+                Choice(name="Autogenerate password", value="autogenerate"),
+                Choice(name="Input password", value="userinput")
+            ]
+        ).execute()
+        edit_pass(username, service, option=action)
 
-        if action2 == "Delete password":
-            #To-Do
-
-            pass
-
-        if action2 == "Exit":
-            print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
-            sys.exit(0)
+    if action == "Delete password":
+        #To-Do
+        pass
         
 
 if __name__ == "__main__":
     pwtool = pyfiglet.figlet_format("pwtool")
     print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
     print("pwtool is a CLI utility for managing passwords.")
+
     while True:
         try:
             main() 
         except KeyboardInterrupt as e:
-            print(colorama.Fore.RED, "Closing pwtool", colorama.Fore.RESET)
+            exit_app() 

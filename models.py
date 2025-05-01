@@ -74,11 +74,11 @@ class Password:
         if pass_file.is_file():
             with open(pass_file, 'a') as file:
                 data = csv.writer(file)
-                data.writerow([self.service, self.username, self.password])
+                data.writerow([self.username, self.service, self.password])
 
         else:
             pass_file.touch(exist_ok=True)
             with open(pass_file, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(["service", "username", "password"])
+                writer.writerow(["username", "service", "password"])
                 writer.writerow([self.service, self.username, self.password])

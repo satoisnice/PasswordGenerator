@@ -59,9 +59,8 @@ def edit_pass(username, service, option="autogenerate"):
                 else:
                     temp_pw_obj = Password(username=username, service=service)
                     new_pass = temp_pw_obj.password
-                    print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pass}{colorama.Fore.RESET}\nKeep it safe.")
-                # change the password value to the new one
-                row["password"] = new_pass
+                    print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pass}{colorama.Style.RESET_ALL}")
+                    print("Keep it safe.")
 
             else:
                 print(f" username: {username} and service: {service} was not found.")
@@ -77,3 +76,6 @@ def edit_pass(username, service, option="autogenerate"):
     # let the user know the password changed
 
     print("Password successfully changed")
+
+def delete_pass(username, service):
+    pass
