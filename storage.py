@@ -36,16 +36,19 @@ def edit_pass(username, service):
                 print(f"Current password: {row['password']}")
                 #prompt the user to enter a new password
                 new_pass = input("Type in your new password: ")
-                # change the password value to the new one
-                row["password"] = new_pass
+                if new_pass == '':
+                    print("No changes made to password")
+                else:
+                    # change the password value to the new one
+                    row["password"] = new_pass
+                    # append the updated values
+                    new_rows.append(row)
+                    # actually edit the value
+                    with open("passwords.csv", 'w', newline='') as file2:
+                        writer = csv.DictWriter(file2, fieldnames=reader.fieldnames)
+                        writer.writeheader()
+                        writer.writerows(new_rows)
+                        # let the user know the password changed
+                        print("Successfully changed")
             else:
                 print(f" username: {username} and service: {service} was not found.")
-            # append the updated values
-            new_rows.append(row)
-    # actually edit the value
-    with open("passwords.csv", 'w', newline='') as file2:
-        writer = csv.DictWriter(file2, fieldnames=reader.fieldnames)
-        writer.writeheader()
-        writer.writerows(new_rows)
-    # let the user know the password changed
-    print("Successfully changed")
