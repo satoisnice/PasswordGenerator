@@ -2,6 +2,11 @@ import random
 import csv
 from pathlib import Path
 
+UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
+LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'  # Lowercase letters
+DIGITS = '0123456789'  # Numbers
+SPECIAL_CHARACTERS = '!@#$%^&*()_+-={}[]|:;\"\'<>,.?/~`'  # Special characters
+
 CHARACTERS = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',  # Uppercase letters
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',  # Lowercase letters
@@ -24,6 +29,8 @@ class Password:
         the service the password is used for
     username: str
         the username the password is used for
+    password: str
+        a password
     
     Methods
     -------
@@ -35,7 +42,7 @@ class Password:
         saves password to passwords.csv file
     
     '''
-    def __init__(self, length=None, service=None, username=None):
+    def __init__(self, length=16, service=None, username=None):
         if length is None or service is None or username is None:    
             self.length, self.service, self.username =  self.get_inputs()
         else:
