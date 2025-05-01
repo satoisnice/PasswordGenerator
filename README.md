@@ -1,5 +1,5 @@
 # pwtool 
-Group 15 project
+pwtool is a CLI utility for managing passwords.
 
 # If you dont have python idk install it pls
 https://ww.python.org/downloads/
