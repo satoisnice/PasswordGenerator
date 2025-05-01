@@ -35,10 +35,15 @@ class Password:
         saves password to passwords.csv file
     
     '''
-    def __init__(self):
-        self.length, self.service, self.username =  self.get_inputs()
+    def __init__(self, length=None, service=None, username=None):
+        if length is None or service is None or username is None:    
+            self.length, self.service, self.username =  self.get_inputs()
+        else:
+            self.length = length
+            self.service = service
+            self.username = username 
+            
         self.password = self.gen_pw() 
-         
 
     def get_inputs(self):
         while True:
