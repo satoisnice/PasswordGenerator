@@ -12,11 +12,13 @@ def view_pass(username, service):
             Returns:
                     profile['password'] (str): String containing the password matching the username and service.
     '''
+    found = False
     try:
         with open("passwords.csv", 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 if row["username"] == username and row["service"] == service:
+                    found = True
                     profile = {
                         "service": row["service"],
                         "username": row["username"],
@@ -24,6 +26,7 @@ def view_pass(username, service):
                     }
                     print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
                     return profile['password']
+            if not found: 
                 print(f"No password with username: {username} and service: {service} found")
                 return None
     except FileNotFoundError as e:
@@ -72,7 +75,7 @@ def edit_pass(username, service, option="autogenerate"):
                     row["password"] = new_pass
                 new_rows.append(row)
             if not found:
-                print(f" username: {username} and service: {service} was not found.")
+                print(f"username: {username} and service: {service} was not found.")
                 return
 
     # actually edit the value
@@ -90,17 +93,23 @@ def edit_pass(username, service, option="autogenerate"):
 
 def delete_pass(username, service):
     rows_keep = []
+    found = False
     try:
         with open("passwords.csv", "r") as file:
             reader = csv.DictReader(file)
             for row in reader:
                 if row["username"] != username and row["service"] != service:
+                    found = True
                     rows_keep.append(row)
     
         with open("passwords.csv", "w") as wrt:
             writer = csv.DictWriter(wrt, fieldnames=reader.fieldnames)
             writer.writeheader()
             writer.writerows(rows_keep)
+
+        if not found:
+            print(f"username: {username} and service: {service} was not found.")
+
     except FileNotFoundError as e:
         print("passwords.csv does not exist", e)
         return
