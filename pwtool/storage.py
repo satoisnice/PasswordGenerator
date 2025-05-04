@@ -94,21 +94,23 @@ def edit_pass(username, service, option="autogenerate"):
 def delete_pass(username, service):
     rows_keep = []
     found = False
+    rows_del = []
     try:
         with open("passwords.csv", "r") as file:
             reader = csv.DictReader(file)
             for row in reader:
-                if row["username"] != username and row["service"] != service:
-                    found = True
+                if row["username"] != username or row["service"] != service:
                     rows_keep.append(row)
-    
+                else:
+                    rows_del.append(row)
+
         with open("passwords.csv", "w") as wrt:
             writer = csv.DictWriter(wrt, fieldnames=reader.fieldnames)
             writer.writeheader()
             writer.writerows(rows_keep)
 
         if not found:
-            print(f"username: {username} and service: {service} was not found.")
+            print(f"username: {username} and service: {service} was not found.", rows_del)
 
     except FileNotFoundError as e:
         print("passwords.csv does not exist", e)
