@@ -1,5 +1,6 @@
 import random
 import csv
+from argon2 import PasswordHasher
 from pathlib import Path
 from utils import is_valid_char
 
@@ -100,6 +101,7 @@ class Password:
     
     def save_pw(self):
         pass_file = Path("passwords.csv")
+
         if pass_file.is_file():
             with open(pass_file, 'a') as file:
                 data = csv.writer(file)
@@ -110,4 +112,4 @@ class Password:
             with open(pass_file, 'w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(["username", "service", "password"])
-                writer.writerow([self.service, self.username, self.password])
+                writer.writerow([self.username, self.service, self.password])
