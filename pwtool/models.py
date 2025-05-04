@@ -1,6 +1,7 @@
 import random
 import csv
 from pathlib import Path
+from utils import is_valid_char
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
 LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'  # Lowercase letters
@@ -53,21 +54,49 @@ class Password:
         self.password = self.gen_pw() 
 
     def get_inputs(self):
+        username = input("Enter username:\n")
+        service = input("For which service is this password for?\n")
+
         while True:
             try:
-                username = input("Enter username:\n")
-                service = input("For which service is this password for?\n")
-                pw_len = int(input("Type desired length of the password (8 character minimum):"))
-                if pw_len < 8:
-                    print("Password must be at least 8 characters.")
+                pw_len = int(input("Type desired length of the password (16 character minimum):"))
+                if pw_len < 16:
+                    print("Password must be at least 16 characters. For more information about password security: https://bitwarden.com/blog/how-long-should-my-password-be/")
                 else:
                     return pw_len, service, username
             except ValueError as e:
-                print("Enter a valid number for password length")
+                print("Enter a valid number for password length", e)
 
     def gen_pw(self):
-        password = "".join(random.choice(CHARACTERS) for _ in range(self.length))
-        return password
+        if self.length < 4:
+            raise ValueError("To include all categories password must be of length 4 or greater")
+
+        password = [
+            random.choice(UPPERCASE),
+            random.choice(LOWERCASE),
+            random.choice(DIGITS),
+            random.choice(SPECIAL_CHARACTERS)
+        ]
+
+        fill_in_length = self.length - len(password)
+        all_chars = UPPERCASE + LOWERCASE + DIGITS + SPECIAL_CHARACTERS
+
+        for _ in range(fill_in_length):
+            password += [random.choice(all_chars)]
+        
+        random.shuffle(password)
+
+        valid_password = []
+        for char in password:
+            if is_valid_char(char):
+                valid_password.append(char)
+
+        while len(valid_password) < self.length:
+            valid_password.append(random.choice(all_chars)) 
+
+        random.shuffle(valid_password)
+
+        return ''.join(valid_password)
     
     def save_pw(self):
         pass_file = Path("passwords.csv")
