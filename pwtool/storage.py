@@ -1,8 +1,7 @@
-import csv, colorama
-
+import csv
+import colorama
+from models import Password
 from pathlib import Path
-# from models import Password
-# from auth import encrypt, decrypt
 
 def view_pass(username, service):
     '''
