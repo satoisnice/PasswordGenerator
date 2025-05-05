@@ -1,4 +1,4 @@
 colorama
 inquirerpy
 pyfiglet
-argon2
+argon2-cffi
