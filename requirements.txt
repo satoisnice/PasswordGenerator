@@ -1,5 +1,6 @@
-colorama
-inquirerpy
-pyfiglet
-argon2-cffi
+colorama    # styling
+inquirerpy  # option selection
+pyfiglet    # logo
+argon2-cffi # encryption
+pytest      # testing-cffi
 cryptography
