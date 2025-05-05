@@ -103,7 +103,7 @@ class Password:
         pass_file = Path("passwords.csv")
 
         if pass_file.is_file():
-            with open(pass_file, 'a') as file:
+            with open(pass_file, 'a', newline='') as file:
                 data = csv.writer(file)
                 data.writerow([self.username, self.service, self.password])
 
@@ -111,8 +111,9 @@ class Password:
             pass_file.touch(exist_ok=True)
             with open(pass_file, 'w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(["username", "service", "password"])
-                writer.writerow([self.username, self.service, self.password])
+                writer.writerows([
+                    ["username", "service", "password"],
+                    [self.username, self.service, self.password]])
 
 from auth import MasterKeyManager
 from utils import get_masterkey
