@@ -94,8 +94,10 @@ def main():
 
     if action == "Delete password":
         username, service = get_username_and_service()
-        confirm_delete = inquirer.confirm(message="Are you sure you want to delete your password? It cannot be recovered.").execute()
-        delete_pass(username, service) 
+        confirm_delete = inquirer.confirm(message=f"Are you sure you want to delete the password for '{username}'? It cannot be recovered.").execute()
+        if confirm_delete == True:
+            delete_pass(username, service)
+        
 
 if __name__ == "__main__":
     pwtool = pyfiglet.figlet_format("pwtool")
