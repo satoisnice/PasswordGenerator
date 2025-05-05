@@ -1,3 +1,4 @@
 colorama
 inquirerpy
 pyfiglet
+argon2
