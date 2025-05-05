@@ -10,8 +10,9 @@ except ImportError:
     print("colorama not found. Installing...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
     import colorama
-from models import Password
+from models import Password, App
 from storage import view_pass, edit_pass, delete_pass
+
 
 style = get_style({
     "questionmark": "#ff8000",
@@ -56,6 +57,8 @@ def get_username_and_service():
     return username, service
 
 def main():
+
+
     action = inquirer.select(
         message="Select an action:",
         choices=[

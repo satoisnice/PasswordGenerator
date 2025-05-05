@@ -116,21 +116,21 @@ class Password:
                     [self.username, self.service, self.password]])
 
 from auth import MasterKeyManager
-from utils import get_masterkey
+from utils import get_hashed_masterkey 
 import time
 
 class App:
-    def __init__(self,  timeout_minutes=1):
-        self.masterkey = MasterKeyManager()
+    def __init__(self,  timeout_minutes=5):
+        self.masterkey_manager = MasterKeyManager()
         self.timeout = timeout_minutes * 60
         self.last_active = None
         self.logged_in = False
         
     def get_key(self, a="password"):
-        self.master_key = get_masterkey() 
+        self.masterkey = get_hashed_masterkey() 
     
     def login(self, password ):
-        if self.masterkey.verify_master_key(self.master_key, password):
+        if self.masterkey_manager.verify_master_key(self.masterkey, password):
            self.logged_in = True
            self.last_active = time.time()
            return True
