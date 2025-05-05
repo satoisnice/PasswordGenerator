@@ -1,6 +1,7 @@
 import csv
 import colorama
 from models import Password
+from pathlib import Path
 
 def view_pass(username, service):
     '''
@@ -112,8 +113,7 @@ def delete_pass(username, service):
         print("passwords.csv does not exist", e)
         return
     
-def store_masterkey(hashed_master_key):
-    file_path = Path("master.hash")
+def store_masterkey(hashed_master_key, file_path = Path("master.hash")):
     try:
         if file_path.is_file():
             with open(file_path, "w") as f:
@@ -125,8 +125,7 @@ def store_masterkey(hashed_master_key):
     except Exception as e:
         return e
 
-def get_masterkey():
-    file_path = Path("master.hash")
+def get_masterkey(file_path = Path("master.hash")):
     try:
         if file_path.is_file():
             with open(file_path, "r") as file:
