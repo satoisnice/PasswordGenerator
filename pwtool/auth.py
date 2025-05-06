@@ -1,18 +1,25 @@
 from argon2 import PasswordHasher
 from argon2.low_level import hash_secret_raw, Type
 import base64
+import os
 from pathlib import Path
+from storage import store_masterkey, store_salt
+from InquirerPy import inquirer
 
-def derive_master_key(password):
-    return PasswordHasher.hash(password)
+class MasterKeyManager:
+    def __init__(self):
+        self.ph = PasswordHasher()
+    
+    def derive_master_key(self, password):
+        return self.ph.hash(password)
 
-def verify_master_key(stored_hash, password):
-    try:
-        PasswordHasher.verify(stored_hash, password)
-        return True
-    except Exception as e:
-        print("something went wrong:", e)
-        return False
+    def verify_master_key(self, stored_hash, password):
+        try:
+            self.ph.verify(stored_hash, password)
+            return True
+        except Exception as e:
+            print("something went wrong:", e)
+            return False
 
 
 def derive_fernet_key_argon2(password, salt):
@@ -31,21 +38,38 @@ def derive_fernet_key_argon2(password, salt):
     return base64.b64encode(key)
 
 def initial_setup(password=None):
-    salt_exists = False
-    master_exists = False
-    salt_is_blank = True
-    master_is_blank = True
+    master_file = Path("master.hash")
+    salt_file = Path("salt.bin")
+    manager = MasterKeyManager()
 
-    if Path("master.hash").exists():
-        master_exists = True
-        try:
-            with open("master.hash", "r") as m_hash_file:
-                if m_hash_file.read() == "":
-                    print("master.hash file exists but no master key exists.")
+    # maseter key handling
+    if master_file.exists() and master_file.stat().st_size > 0:
+        print("Master password already set.")
+        confirm = inquirer.confirm(
+            message="Would you like to overwrite the master password?"
+        ).execute()
+        if confirm:
+            new_pass = input("Enter new master password: ")
+            hashed_pw = manager.derive_master_key(new_pass)
+            store_masterkey(hashed_pw)
+    else:
+        if not password:
+            password = input("Create a master password: ")
+        hashed_pw = manager.derive_master_key(password)
+        store_masterkey(hashed_pw)
+        print("Master password set.")
 
-                else:
-                    master_is_blank = False
-                    print("master key already setup.")
-        except FileNotFoundError as e:
-            
-    
+    # salt handling
+    if salt_file.exists() and salt_file.stat().st_size > 0:
+        print("Salt already set.")
+        confirm = inquirer.confirm(
+            message="Would you like to generate a new salt? (Warning: This will invalidate all current data.)"
+        ).execute()
+        if confirm:
+            salt = os.urandom(16)
+            store_salt(salt)
+            print("New salt saved.")
+    else:
+        salt = os.urandom(16)
+        store_salt(salt)
+        print("Salt created and saved.")
