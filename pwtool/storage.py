@@ -1,6 +1,6 @@
 import csv
 import colorama
-from models import Password
+from pathlib import Path
 
 def view_pass(username, service):
     '''
@@ -31,6 +31,7 @@ def view_pass(username, service):
         return None
 
 def edit_pass(username, service, option="autogenerate"):
+    from models import Password
     """
     Takes username and service and edits passwords.csv. Edits the password column in a row matching to arguments passed to the function.
 
@@ -123,15 +124,42 @@ def store_masterkey(hashed_master_key):
             with open(file_path, "w") as file:
                 file.write(hashed_master_key)
     except Exception as e:
-        return e
+        print(e)
+        return
 
 def get_masterkey():
     file_path = Path("master.hash")
     try:
         if file_path.is_file():
             with open(file_path, "r") as file:
-                return file.readline()
+                return file.read()
         else:
             print("master.hash doesnt exist. Please create")
     except Exception as e:
         print(e)
+        return
+
+def store_salt(salt):
+    file_path = Path("salt.bin")
+    try:
+        if file_path.is_file():
+            with open(file_path, "wb") as f:
+                f.write(salt)
+        else:
+            file_path.touch(exist_ok=True)
+            with open(file_path, "wb") as file:
+                file.write(salt)
+    except Exception as e:
+        return e
+
+def get_salt():
+    file_path = Path("salt.bin")
+    try:
+        if file_path.is_file():
+            with open(file_path, "rb") as file:
+                return file.read()
+        else:
+            print("salt.bin doesnt exist. Please create")
+    except Exception as e:
+        print(e)
+        return

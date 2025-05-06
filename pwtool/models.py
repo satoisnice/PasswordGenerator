@@ -115,7 +115,7 @@ class Password:
                     ["username", "service", "password"],
                     [self.username, self.service, self.password]])
 
-from auth import MasterKeyManager
+from auth import MasterKeyManager 
 from utils import get_hashed_masterkey 
 import time
 
