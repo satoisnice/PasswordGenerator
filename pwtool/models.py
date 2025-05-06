@@ -14,6 +14,8 @@ from auth import MasterKeyManager, encrypt#, decrypt
 from storage import get_masterkey,get_salt, save_pass
 
 from argon2 import PasswordHasher
+from pathlib import Path
+from utils import is_valid_char
 from cryptography.fernet import Fernet
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
