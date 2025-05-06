@@ -3,7 +3,7 @@ from argon2.low_level import hash_secret_raw, Type
 import base64
 import os
 from pathlib import Path
-from storage import store_masterkey, store_salt
+from storage import store_masterkey, store_salt, get_salt
 from InquirerPy import inquirer
 
 class MasterKeyManager:
@@ -62,13 +62,7 @@ def initial_setup(password=None):
     # salt handling
     if salt_file.exists() and salt_file.stat().st_size > 0:
         print("Salt already set.")
-        confirm = inquirer.confirm(
-            message="Would you like to generate a new salt? (Warning: This will invalidate all current data.)"
-        ).execute()
-        if confirm:
-            salt = os.urandom(16)
-            store_salt(salt)
-            print("New salt saved.")
+        salt = get_salt()
     else:
         salt = os.urandom(16)
         store_salt(salt)
