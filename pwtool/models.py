@@ -3,6 +3,8 @@ import csv
 from argon2 import PasswordHasher
 from pathlib import Path
 from utils import is_valid_char
+import time
+from datetime import datetime, timedelta
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
 LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'  # Lowercase letters
@@ -152,3 +154,20 @@ class App:
     def logout(self):
         self.logged_in = False
         self.last_active = None
+
+# Timeout class to close session
+class TimeOut:
+
+    def __init__(self,duration):
+        self.duration = duration
+        self.future_time = None
+    
+    def start(self):
+        self.future_time = datetime.now() + timedelta(seconds=self.duration)
+        while datetime.now() < self.future_time:
+            time.sleep(1)
+
+        print("you are now logged out")
+    
+    def restart(self):
+        self.start()
