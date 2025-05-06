@@ -12,8 +12,8 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
     import colorama
 from models import Password, App
-from storage import view_pass, edit_pass, delete_pass
-from auth import initial_setup
+from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt
+from auth import initial_setup, encrypt
 import threading
 
 
@@ -47,7 +47,9 @@ def generate_and_save_password():
         print(colorama.Fore.MAGENTA + a.password)
         sys.stdout.write(colorama.Style.RESET_ALL)
         print("\nyou can now copy your password, keep it safe")
-        a.save_pw()
+        salt = get_salt()
+        encrypted_pass = encrypt(app.masterkey, a.password, salt)
+        save_pass(a.username, a.service, encrypted_pass)
 
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
