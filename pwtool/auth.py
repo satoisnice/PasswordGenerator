@@ -1,5 +1,6 @@
 from argon2 import PasswordHasher
 from argon2.low_level import hash_secret_raw, Type
+from cryptography.fernet import Fernet
 import base64
 import os
 from pathlib import Path
@@ -68,10 +69,8 @@ def initial_setup(password=None):
         store_salt(salt)
         print("Salt created and saved.")
 
-from cryptography.fernet import Fernet
 def encrypt(master_password, password, salt):    
     password_bytes = password.encode()
     key = derive_fernet_key_argon2(master_password, salt)
     f = Fernet(key)
     return f.encrypt(password_bytes)
-
