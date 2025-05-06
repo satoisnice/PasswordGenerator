@@ -3,6 +3,7 @@ import csv
 from argon2 import PasswordHasher
 from pathlib import Path
 from utils import is_valid_char
+from cryptography.fernet import Fernet
 from storage import save_pass
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
