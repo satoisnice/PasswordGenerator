@@ -1,5 +1,6 @@
 import sys
 import time
+from pathlib import Path
 try:
     import colorama
     import pyfiglet
@@ -12,6 +13,8 @@ except ImportError:
     import colorama
 from models import Password, App
 from storage import view_pass, edit_pass, delete_pass
+from auth import initial_setup
+import threading
 
 
 style = get_style({
@@ -56,8 +59,16 @@ def get_username_and_service():
     service = inquirer.text(message="Enter the service:").execute()
     return username, service
 
-def main():
+def session_tracker(app):
+    while True:
+        time.sleep(1)
+        if app.logged_in==False and not app.is_session_active():
+            print("Session expired. Please log in again.")
+            app.login(input("Your password:"))
 
+def main(app):
+
+    threading.Thread(target=session_tracker, args=(app,), daemon=True).start()
 
     action = inquirer.select(
         message="Select an action:",
@@ -75,6 +86,10 @@ def main():
 
     if action == "Exit":
        exit_app() 
+
+    if not app.is_session_active():
+        print("session expired. please login again")
+        return
 
     if action == "Generate password":
        generate_and_save_password()
@@ -100,15 +115,29 @@ def main():
         confirm_delete = inquirer.confirm(message=f"Are you sure you want to delete the password for '{username}'? It cannot be recovered.").execute()
         if confirm_delete == True:
             delete_pass(username, service)
-        
+
+    app.active()        
 
 if __name__ == "__main__":
     pwtool = pyfiglet.figlet_format("pwtool")
     print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
     print("pwtool is a CLI utility for managing passwords.\n")
 
+    master_path = Path("master.hash")
+    if not master_path.exists():
+        initial_setup()
+    
+    app = App()
+    
+    
     while True:
+        if not app.is_session_active():
+            while True:
+                master_pass = input("Your password:")
+                if app.login(master_pass):
+                    break
+                print("incorrect password. Try again")
         try:
-            main() 
+            main(app) 
         except KeyboardInterrupt as e:
             exit_app() 

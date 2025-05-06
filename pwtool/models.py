@@ -125,14 +125,13 @@ class App:
         self.timeout = timeout_minutes * 60
         self.last_active = None
         self.logged_in = False
-        
-    def get_key(self, a="password"):
-        self.masterkey = get_hashed_masterkey() 
+        self.hashed_master_key = get_hashed_masterkey()
     
     def login(self, password ):
-        if self.masterkey_manager.verify_master_key(self.masterkey, password):
+        if self.masterkey_manager.verify_master_key(self.hashed_master_key, password):
            self.logged_in = True
            self.last_active = time.time()
+           print("login successful")
            return True
         else:
            return False
