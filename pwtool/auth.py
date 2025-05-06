@@ -67,3 +67,11 @@ def initial_setup(password=None):
         salt = os.urandom(16)
         store_salt(salt)
         print("Salt created and saved.")
+
+from cryptography.fernet import Fernet
+def encrypt(master_password, password, salt):    
+    password_bytes = password.encode()
+    key = derive_fernet_key_argon2(master_password, salt)
+    f = Fernet(key)
+    return f.encrypt(password_bytes)
+
