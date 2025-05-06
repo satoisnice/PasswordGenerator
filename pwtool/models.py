@@ -3,6 +3,7 @@ import csv
 from argon2 import PasswordHasher
 from pathlib import Path
 from utils import is_valid_char
+from storage import save_pass
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
 LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'  # Lowercase letters
@@ -100,20 +101,7 @@ class Password:
         return ''.join(valid_password)
     
     def save_pw(self):
-        pass_file = Path("passwords.csv")
-
-        if pass_file.is_file():
-            with open(pass_file, 'a', newline='') as file:
-                data = csv.writer(file)
-                data.writerow([self.username, self.service, self.password])
-
-        else:
-            pass_file.touch(exist_ok=True)
-            with open(pass_file, 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerows([
-                    ["username", "service", "password"],
-                    [self.username, self.service, self.password]])
+        save_pass(self.username, self.service, self.password)
 
 from auth import MasterKeyManager 
 from utils import get_hashed_masterkey 
@@ -126,13 +114,15 @@ class App:
         self.last_active = None
         self.logged_in = False
         self.hashed_master_key = get_hashed_masterkey()
+        
     
     def login(self, password ):
         if self.masterkey_manager.verify_master_key(self.hashed_master_key, password):
            self.logged_in = True
            self.last_active = time.time()
            print("login successful")
-           return True
+           self.masterkey = password
+           return True, self.masterkey 
         else:
            return False
 

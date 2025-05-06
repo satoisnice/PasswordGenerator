@@ -2,6 +2,23 @@ import csv
 import colorama
 from pathlib import Path
 
+def save_pass(username, service, password):
+    pass_file = Path("passwords.csv")
+
+    if pass_file.is_file():
+        with open(pass_file, 'a', newline='') as file:
+            data = csv.writer(file)
+            data.writerow([username, service, password]) 
+    
+    else:
+        pass_file.touch(exist_ok=True)
+        with open(pass_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows([
+                ["username","service","password"],
+                username, service, password
+            ])
+
 def view_pass(username, service):
     '''
     Takes a username and service and returns a password from passwords.csv
@@ -22,8 +39,8 @@ def view_pass(username, service):
                         "username": row["username"],
                         "password": row["password"] 
                     }
-                    print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
-                    return profile['password']
+                    # print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
+                    return profile
                 print(f"No password with username: {username} and service: {service} found")
                 return None
     except FileNotFoundError as e:

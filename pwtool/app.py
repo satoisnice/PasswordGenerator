@@ -13,7 +13,7 @@ except ImportError:
     import colorama
 from models import Password, App
 from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt
-from auth import initial_setup, encrypt
+from auth import initial_setup, encrypt, decrypt 
 import threading
 
 
@@ -51,9 +51,18 @@ def generate_and_save_password():
         encrypted_pass = encrypt(app.masterkey, a.password, salt)
         save_pass(a.username, a.service, encrypted_pass)
 
+def get_and_view_password(username, service):
+    profile = view_pass(username, service)
+    password = profile["password"]
+    salt = get_salt()
+    decrypt(app.masterkey, password, salt)
+    
+
+
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
     time.sleep(1)
+    app.logout()
     sys.exit(0)
 
 def get_username_and_service():
@@ -98,7 +107,8 @@ def main(app):
 
     if action == "View password":
             username, service = get_username_and_service() 
-            view_pass(username, service)
+            # view_pass(username, service)
+            get_and_view_password(username, service)
         
     if action == "Edit password":
         username = inquirer.text(message="Enter username:").execute()
