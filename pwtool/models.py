@@ -1,8 +1,13 @@
 import random
 import csv
-from argon2 import PasswordHasher
+import time
+
 from pathlib import Path
-from utils import is_valid_char
+from utils import is_valid_char,get_hashed_masterkey
+from auth import MasterKeyManager, encrypt, decrypt
+from storage import get_masterkey,get_salt
+
+from argon2 import PasswordHasher
 from cryptography.fernet import Fernet
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
@@ -106,7 +111,7 @@ class Password:
         if pass_file.is_file():
             with open(pass_file, 'a', newline='') as file:
                 data = csv.writer(file)
-                data.writerow([self.username, self.service, self.password])
+                data.writerow([self.username, self.service, encrypt(get_masterkey(), self.password, get_salt())])
 
         else:
             pass_file.touch(exist_ok=True)
@@ -114,11 +119,9 @@ class Password:
                 writer = csv.writer(file)
                 writer.writerows([
                     ["username", "service", "password"],
-                    [self.username, self.service, self.password]])
+                    [self.username, self.service, encrypt(get_masterkey(), self.password, get_salt())]])
 
-from auth import MasterKeyManager 
-from utils import get_hashed_masterkey 
-import time
+
 
 class App:
     def __init__(self,  timeout_minutes=5):

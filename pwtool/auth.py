@@ -74,3 +74,9 @@ def encrypt(master_password, password, salt):
     key = derive_fernet_key_argon2(master_password, salt)
     f = Fernet(key)
     return f.encrypt(password_bytes)
+
+def decrypt(master_password, encrypted_password, salt):    
+    password_bytes = encrypted_password.decode()
+    key = derive_fernet_key_argon2(master_password, salt)
+    f = Fernet(key)
+    return f.decrypt(password_bytes)

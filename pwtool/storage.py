@@ -2,6 +2,7 @@ import csv
 import colorama
 from models import Password
 from pathlib import Path
+from auth import encrypt, decrypt
 
 def view_pass(username, service):
     '''
@@ -21,9 +22,11 @@ def view_pass(username, service):
                     profile = {
                         "service": row["service"],
                         "username": row["username"],
-                        "password": row["password"] 
+                        "password": decrypt(get_masterkey(), row['password'], get_salt()) 
                     }
-                    print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
+                    print(f"""
+                          Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}
+                        """)
                     return profile['password']
                 print(f"No password with username: {username} and service: {service} found")
                 return None
@@ -56,7 +59,7 @@ def edit_pass(username, service, option="autogenerate"):
             for row in reader:
                 if row['username'] == username and row['service'] == service:
                     found = True
-                    print(f"Current password: {row['password']}")
+                    print(f"Current password: {decrypt(get_masterkey(), row['password'], get_salt())}")
 
                     if option == "userinput":
                         #prompt the user to enter a new password
@@ -71,7 +74,7 @@ def edit_pass(username, service, option="autogenerate"):
                         print("Keep it safe.")
 
             # append the updated values
-                    row["password"] = new_pass
+                    row["password"] = encrypt(get_masterkey(), new_pass, get_salt())
                 new_rows.append(row)
             if not found:
                 print(f" username: {username} and service: {service} was not found.")
