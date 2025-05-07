@@ -47,9 +47,9 @@ def view_pass(username, service):
         print("passwords.csv not found.")
         return None
 
-def edit_pass(username, service, option="autogenerate"):
+def edit_pass(username, service, masterkey, option="autogenerate"):
     from models import Password
-    from auth import encrypt, MasterKeyManager
+    from auth import encrypt, decrypt, MasterKeyManager
     """
     Takes username and service and edits passwords.csv. Edits the password column in a row matching to arguments passed to the function.
 
@@ -73,7 +73,7 @@ def edit_pass(username, service, option="autogenerate"):
             for row in reader:
                 if row['username'] == username and row['service'] == service:
                     found = True
-                    print(f"Current password: {row['password']}")
+                    print(f"Current password: {colorama.Fore.MAGENTA}{decrypt(masterkey, row['password'], get_salt())}{colorama.Style.RESET_ALL}")
 
                     if option == "userinput":
                         #prompt the user to enter a new password
