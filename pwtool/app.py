@@ -1,9 +1,8 @@
-import sys
-import time
+import sys, time, threading
+
 from pathlib import Path
 try:
-    import colorama
-    import pyfiglet
+    import colorama, pyfiglet
     from InquirerPy import inquirer, get_style
     from InquirerPy.base.control import Choice
 except ImportError:
@@ -11,10 +10,10 @@ except ImportError:
     print("colorama not found. Installing...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
     import colorama
+
 from models import Password, App
 from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt
-from auth import initial_setup, encrypt, decrypt 
-import threading
+from auth import initial_setup, encrypt, decrypt
 
 
 style = get_style({
