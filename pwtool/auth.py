@@ -75,7 +75,9 @@ def encrypt(master_password: str, password: str, salt: bytes):
     f = Fernet(key)
     return f.encrypt(password_bytes)
 
+from ast import literal_eval
 def decrypt(master_password: str, encrypted_password, salt: bytes):
     key = derive_fernet_key_argon2(master_password, salt)
     f = Fernet(key)
-    return f.decrypt(encrypted_password)
+    encrypted_password_literal = literal_eval(encrypted_password) 
+    return f.decrypt(encrypted_password_literal).decode()
