@@ -32,8 +32,7 @@ def view_pass(username, service):
     try:
         with open("passwords.csv", 'r') as file:
             reader = csv.DictReader(file)
-            for i, row in enumerate(reader):
-                # print(i)
+            for row in reader:
                 if row["username"] == username and row["service"] == service:
                     profile = {
                         "service": row["service"],
