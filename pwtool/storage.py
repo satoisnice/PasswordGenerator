@@ -2,7 +2,25 @@ import csv, colorama
 
 from pathlib import Path
 # from models import Password
-# from auth import encrypt, decrypt
+import auth
+from app import app as application
+
+def save_pass(username, service, encrypted_password):
+    pass_file = Path("passwords.csv")
+
+    if pass_file.is_file():
+        with open(pass_file, 'a', newline='') as file:
+            data = csv.writer(file)
+            data.writerow([username, service, encrypted_password]) 
+    
+    else:
+        pass_file.touch(exist_ok=True)
+        with open(pass_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows([
+                ["username","service","password"],
+                [username, service, encrypted_password]
+            ])
 
 def view_pass(username, service):
     '''
@@ -22,14 +40,14 @@ def view_pass(username, service):
                     profile = {
                         "service": row["service"],
                         "username": row["username"],
-                        "password": decrypt(get_masterkey(), row['password'], get_salt()) 
-                    }
-                    print(f"""
-                          Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}
-                        """)
+                        "password": row["password"] 
+                        }
+                    # print(f"""
+                    #     Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}
+                    # """)
                     return profile['password']
-                print(f"No password with username: {username} and service: {service} found")
-                return None
+            print(f"No password with username: {username} and service: {service} found")
+            return
     except FileNotFoundError as e:
         print("passwords.csv not found.")
         return None
@@ -59,7 +77,7 @@ def edit_pass(username, service, option="autogenerate"):
             for row in reader:
                 if row['username'] == username and row['service'] == service:
                     found = True
-                    print(f"Current password: {decrypt(get_masterkey(), row['password'], get_salt())}")
+                    # print(f"Current password: {auth.decrypt(get_masterkey(), row['password'], get_salt)}")
 
                     if option == "userinput":
                         #prompt the user to enter a new password
@@ -70,11 +88,11 @@ def edit_pass(username, service, option="autogenerate"):
                     else:   
                         temp_pw_obj = Password(username=username, service=service)
                         new_pass = temp_pw_obj.password
-                        print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pass}{colorama.Style.RESET_ALL}")
+                        print(f"Your new password is: {colorama.Fore.MAGENTA + new_pass + colorama.Style.RESET_ALL}")
                         print("Keep it safe.")
 
             # append the updated values
-                    row["password"] = encrypt(get_masterkey(), new_pass, get_salt())
+                    row["password"] = auth.encrypt(application.masterkey, new_pass, get_salt()) 
                 new_rows.append(row)
             if not found:
                 print(f" username: {username} and service: {service} was not found.")
