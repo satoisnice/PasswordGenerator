@@ -41,19 +41,18 @@ def view_pass(username, service):
                         "service": row["service"],
                         "username": row["username"],
                         "password": row["password"] 
-                        }
-                    # print(f"""
-                    #     Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}
-                    # """)
-                    return profile['password']
+                    }
+                    # print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
+                    return profile
             print(f"No password with username: {username} and service: {service} found")
-            return
+            return None
     except FileNotFoundError as e:
         print("passwords.csv not found.")
         return None
 
-def edit_pass(username, service, option="autogenerate"):
+def edit_pass(username, service, masterkey, option="autogenerate"):
     from models import Password
+    from auth import encrypt, decrypt, MasterKeyManager
     """
     Takes username and service and edits passwords.csv. Edits the password column in a row matching to arguments passed to the function.
 
@@ -77,7 +76,7 @@ def edit_pass(username, service, option="autogenerate"):
             for row in reader:
                 if row['username'] == username and row['service'] == service:
                     found = True
-                    # print(f"Current password: {auth.decrypt(get_masterkey(), row['password'], get_salt)}")
+                    print(f"Current password: {colorama.Fore.MAGENTA}{decrypt(masterkey, row['password'], get_salt())}{colorama.Style.RESET_ALL}")
 
                     if option == "userinput":
                         #prompt the user to enter a new password
@@ -92,7 +91,17 @@ def edit_pass(username, service, option="autogenerate"):
                         print("Keep it safe.")
 
             # append the updated values
-                    row["password"] = auth.encrypt(application.masterkey, new_pass, get_salt()) 
+                    verify = False
+                    while not verify:
+                        a = MasterKeyManager()
+                        prompt_for_master = input("\n To save your new password please enter your login password: ")
+                        if a.verify_master_key(get_masterkey(), prompt_for_master):
+                            verify = True
+                            salt = get_salt()
+                            master_pass = prompt_for_master
+                            new_pass_encrypted = encrypt(master_pass, new_pass, salt)
+                            row["password"] = new_pass_encrypted
+                            break
                 new_rows.append(row)
             if not found:
                 print(f" username: {username} and service: {service} was not found.")

@@ -82,7 +82,7 @@ def session_tracker(app):
             app.login(input("Your password:"))
 
 def main(app):
-
+    master_pass = app.masterkey
     threading.Thread(target=session_tracker, args=(app,), daemon=True).start()
 
     action = inquirer.select(
@@ -124,8 +124,7 @@ def main(app):
                 Choice(name="Input password", value="userinput")
             ]
         ).execute()
-        get_and_view_password(username, service)
-        edit_pass(username, service, option=action)
+        edit_pass(username, service, master_pass, option=action)
 
     if action == "Delete password":
         username, service = get_username_and_service()
