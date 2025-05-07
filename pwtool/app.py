@@ -12,7 +12,7 @@ except ImportError:
     import colorama
 
 from models import Password, App
-from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt
+from storage import view_pass, edit_pass, delete_pass, get_salt, save_pass
 from auth import initial_setup, encrypt, decrypt
 
 
