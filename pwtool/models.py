@@ -5,6 +5,7 @@ from pathlib import Path
 from utils import is_valid_char
 import time
 from datetime import datetime, timedelta
+from threading import Event,Thread
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
 LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'  # Lowercase letters
@@ -155,19 +156,40 @@ class App:
         self.logged_in = False
         self.last_active = None
 
-# Timeout class to close session
+# Timeout class to close session - (time unit is in seconds)
 class TimeOut:
 
     def __init__(self,duration):
         self.duration = duration
         self.future_time = None
+        self.event = Event()
+        self.thread = None
     
     def start(self):
+        # Sets the event flag to false until the set() method sets it to true again.
+        self.event.clear()
+        # Store the time which the timer needs to countdown.
         self.future_time = datetime.now() + timedelta(seconds=self.duration)
-        while datetime.now() < self.future_time:
-            time.sleep(1)
 
-        print("you are now logged out")
-    
+        def run():
+            # while the specified time has not yet been reached.
+            while datetime.now() < self.future_time:
+                # if the event is set (stop event has been triggered) then return (stop execution).
+                if self.event.is_set():
+                    return
+                # wait 1 second while the timer is in execution, this prevents intensive cpu usage.
+                time.sleep(1)
+        # start a thread for the run function. 
+        self.thread = Thread(target=run)
+        self.thread.start()
+
+    def stop(self):
+        # Trigger the stop function.
+        self.event.set()
+        # if a thread exists then join it (stop it from executing).
+        if self.thread:
+            self.thread.join()
+
     def restart(self):
+        self.stop()
         self.start()
