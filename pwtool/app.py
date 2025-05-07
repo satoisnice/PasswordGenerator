@@ -1,4 +1,4 @@
-import sys, time, threading
+import sys, time, threading, csv
 
 from pathlib import Path
 try:
@@ -57,12 +57,23 @@ def get_and_view_password(username, service):
     salt = get_salt()
     pw = decrypt(app.masterkey, password, salt)
     print(f"""
-    Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL}
+    Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL},
     Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
     Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}
     """)
     
-
+def view_all():
+    try:
+        with open("passwords.csv", 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                salt = get_salt()
+                pw = decrypt(app.masterkey, row["password"], salt)
+                print(f"""{colorama.Fore.WHITE + row["username"] + colorama.Style.RESET_ALL},{colorama.Fore.BLUE + row["service"] + colorama.Style.RESET_ALL}
+Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}""")
+    except FileNotFoundError as e:
+        print("passwords.csv not found.")
+        return None
 
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
@@ -91,6 +102,7 @@ def main(app):
         choices=[
             "Generate password",
             "View password",
+            "View all",
             "Edit password",
             "Delete password",
             "Exit"
@@ -114,6 +126,9 @@ def main(app):
         username, service = get_username_and_service() 
         # view_pass(username, service)
         get_and_view_password(username, service)
+
+    if action == "View all":
+        view_all()    
         
     if action == "Edit password":
         username = inquirer.text(message="Enter username:").execute()
