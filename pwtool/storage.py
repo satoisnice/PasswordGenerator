@@ -1,24 +1,8 @@
 import csv
 import colorama
+from models import Password
 from pathlib import Path
-
-def save_pass(username, service, password):
-    pass_file = Path("passwords.csv")
-
-    if pass_file.is_file():
-        with open(pass_file, 'a', newline='') as file:
-            data = csv.writer(file)
-            data.writerow([username, service, password]) 
-    
-    else:
-        pass_file.touch(exist_ok=True)
-        with open(pass_file, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerows([
-                ["username","service","password"],
-                username, service, password
-            ])
-from pathlib import Path
+from auth import encrypt, decrypt
 
 def view_pass(username, service):
     '''
@@ -38,7 +22,7 @@ def view_pass(username, service):
                     profile = {
                         "service": row["service"],
                         "username": row["username"],
-                        "password": row["password"] 
+                        "password": decrypt(get_masterkey(), row['password'], get_salt()) 
                     }
                     # print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
                     return profile
