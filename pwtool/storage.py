@@ -22,14 +22,14 @@ def view_pass(username, service):
                     profile = {
                         "service": row["service"],
                         "username": row["username"],
-                        "password": decrypt(get_masterkey(), row['password'], get_salt()) 
-                    }
-                    print(f"""
-                          Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}
-                        """)
+                        "password": row["password"] 
+                        }
+                    # print(f"""
+                    #     Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}
+                    # """)
                     return profile['password']
-                print(f"No password with username: {username} and service: {service} found")
-                return None
+            print(f"No password with username: {username} and service: {service} found")
+            return
     except FileNotFoundError as e:
         print("passwords.csv not found.")
         return None
@@ -71,7 +71,7 @@ def edit_pass(username, service, masterkey, option="autogenerate"):
                     else:   
                         temp_pw_obj = Password(username=username, service=service)
                         new_pass = temp_pw_obj.password
-                        print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pass}{colorama.Style.RESET_ALL}")
+                        print(f"Your new password is: {colorama.Fore.MAGENTA + new_pass + colorama.Style.RESET_ALL}")
                         print("Keep it safe.")
 
             # append the updated values

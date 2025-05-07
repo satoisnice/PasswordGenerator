@@ -106,20 +106,7 @@ class Password:
         return ''.join(valid_password)
     
     def save_pw(self):
-        pass_file = Path("passwords.csv")
-
-        if pass_file.is_file():
-            with open(pass_file, 'a', newline='') as file:
-                data = csv.writer(file)
-                data.writerow([self.username, self.service, encrypt(get_masterkey(), self.password, get_salt())])
-
-        else:
-            pass_file.touch(exist_ok=True)
-            with open(pass_file, 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerows([
-                    ["username", "service", "password"],
-                    [self.username, self.service, encrypt(get_masterkey(), self.password, get_salt())]])
+        save_pass(self.username, self.service, self.password)
 
 
 

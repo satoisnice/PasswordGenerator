@@ -54,10 +54,14 @@ def generate_and_save_password():
 
 def get_and_view_password(username, service):
     profile = view_pass(username, service)
-    password = profile["password"]
+    password = profile
     salt = get_salt()
     pw = decrypt(app.masterkey, password, salt)
-    print(f"Service: {colorama.Fore.MAGENTA + username}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + service}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + pw} {colorama.Style.RESET_ALL}")
+    print(f"""
+    Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL}
+    Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
+    Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}
+    """)
     
 
 
@@ -98,19 +102,19 @@ def main(app):
     ).execute()
 
     if action == "Exit":
-       exit_app() 
+        exit_app() 
 
     if not app.is_session_active():
         print("session expired. please login again")
         return
 
     if action == "Generate password":
-       generate_and_save_password()
+        generate_and_save_password()
 
     if action == "View password":
-            username, service = get_username_and_service() 
-            # view_pass(username, service)
-            get_and_view_password(username, service)
+        username, service = get_username_and_service() 
+        # view_pass(username, service)
+        get_and_view_password(username, service)
         
     if action == "Edit password":
         username = inquirer.text(message="Enter username:").execute()
