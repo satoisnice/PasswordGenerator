@@ -49,6 +49,7 @@ def view_pass(username, service):
 
 def edit_pass(username, service, option="autogenerate"):
     from models import Password
+    from auth import encrypt, MasterKeyManager
     """
     Takes username and service and edits passwords.csv. Edits the password column in a row matching to arguments passed to the function.
 
@@ -87,7 +88,17 @@ def edit_pass(username, service, option="autogenerate"):
                         print("Keep it safe.")
 
             # append the updated values
-                    row["password"] = new_pass
+                    verify = False
+                    while not verify:
+                        a = MasterKeyManager()
+                        prompt_for_master = input("\n To save your new password please enter your login password: ")
+                        if a.verify_master_key(get_masterkey(), prompt_for_master):
+                            verify = True
+                            salt = get_salt()
+                            master_pass = prompt_for_master
+                            new_pass_encrypted = encrypt(master_pass, new_pass, salt)
+                            row["password"] = new_pass_encrypted
+                            break
                 new_rows.append(row)
             if not found:
                 print(f" username: {username} and service: {service} was not found.")
