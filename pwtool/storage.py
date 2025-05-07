@@ -1,10 +1,22 @@
 import csv, colorama
-
-import csv, colorama
-
 from pathlib import Path
-from models import Password
-from auth import encrypt, decrypt
+
+def save_pass(username, service, password):
+    pass_file = Path("passwords.csv")
+
+    if pass_file.is_file():
+        with open(pass_file, 'a', newline='') as file:
+            data = csv.writer(file)
+            data.writerow([username, service, password]) 
+    
+    else:
+        pass_file.touch(exist_ok=True)
+        with open(pass_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows([
+                ["username","service","password"],
+                username, service, password
+            ])
 
 def view_pass(username, service):
     '''
