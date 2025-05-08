@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from storage import store_masterkey, store_salt, get_salt
 from InquirerPy import inquirer
+import colorama
 
 class MasterKeyManager:
     def __init__(self):
@@ -82,6 +83,6 @@ def decrypt(master_password: str, encrypted_password, salt: bytes):
     try:
         encrypted_password_literal = literal_eval(encrypted_password)
     except Exception as e:
-        print("Password is not encrypted please edit your password so it will be encrypted")
+        print(f"\n{colorama.Fore.RED}WARNING: {colorama.Style.RESET_ALL}Password is not encrypted please edit your password so it will be encrypted\n")
         return encrypted_password 
     return f.decrypt(encrypted_password_literal).decode()
