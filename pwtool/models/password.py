@@ -1,8 +1,6 @@
 import random
-import csv
-from argon2 import PasswordHasher
-from pathlib import Path
 from utils import is_valid_char
+from storage import save_pass
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
 LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'  # Lowercase letters
@@ -100,55 +98,4 @@ class Password:
         return ''.join(valid_password)
     
     def save_pw(self):
-        pass_file = Path("passwords.csv")
-
-        if pass_file.is_file():
-            with open(pass_file, 'a', newline='') as file:
-                data = csv.writer(file)
-                data.writerow([self.username, self.service, self.password])
-
-        else:
-            pass_file.touch(exist_ok=True)
-            with open(pass_file, 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerows([
-                    ["username", "service", "password"],
-                    [self.username, self.service, self.password]])
-
-from auth import MasterKeyManager
-from utils import get_masterkey
-import time
-
-class App:
-    def __init__(self,  timeout_minutes=1):
-        self.masterkey = MasterKeyManager()
-        self.timeout = timeout_minutes * 60
-        self.last_active = None
-        self.logged_in = False
-        
-    def get_key(self, a="password"):
-        self.master_key = get_masterkey() 
-    
-    def login(self, password ):
-        if self.masterkey.verify_master_key(self.master_key, password):
-           self.logged_in = True
-           self.last_active = time.time()
-           return True
-        else:
-           return False
-
-    def is_session_active(self):
-        if not self.logged_in:
-            return False
-        if time.time() - self.last_active > self.timeout:
-            self.logged_in = False
-            return False
-        return True
-
-    def active(self):
-        if self.logged_in:
-            self.last_active = time.time()
-    
-    def logout(self):
-        self.logged_in = False
-        self.last_active = None
+        save_pass(self.username, self.service, self.password)

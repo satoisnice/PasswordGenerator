@@ -2,3 +2,4 @@ colorama
 inquirerpy
 pyfiglet
 argon2-cffi
+cryptography
