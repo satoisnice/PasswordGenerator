@@ -54,6 +54,8 @@ def generate_and_save_password():
 
 def get_and_view_password(username, service):
     profile = view_pass(username, service)
+    if not profile:
+        return None
     password = profile["password"]
     salt = get_salt()
     pw = decrypt(app.masterkey, password, salt)
