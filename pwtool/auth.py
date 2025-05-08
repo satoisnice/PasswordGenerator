@@ -79,5 +79,9 @@ from ast import literal_eval
 def decrypt(master_password: str, encrypted_password, salt: bytes):
     key = derive_fernet_key_argon2(master_password, salt)
     f = Fernet(key)
-    encrypted_password_literal = literal_eval(encrypted_password) 
+    try:
+        encrypted_password_literal = literal_eval(encrypted_password)
+    except Exception as e:
+        print("Password is not encrypted please edit your password so it will be encrypted")
+        return encrypted_password 
     return f.decrypt(encrypted_password_literal).decode()
