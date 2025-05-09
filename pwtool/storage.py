@@ -1,7 +1,23 @@
 import csv
 import colorama
-from models import Password
 from pathlib import Path
+
+def save_pass(username, service, password):
+    pass_file = Path("passwords.csv")
+
+    if pass_file.is_file():
+        with open(pass_file, 'a', newline='') as file:
+            data = csv.writer(file)
+            data.writerow([username, service, password]) 
+    
+    else:
+        pass_file.touch(exist_ok=True)
+        with open(pass_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerows([
+                ["username","service","password"],
+                username, service, password
+            ])
 
 def view_pass(username, service):
     '''
@@ -23,15 +39,17 @@ def view_pass(username, service):
                         "username": row["username"],
                         "password": row["password"] 
                     }
-                    print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
-                    return profile['password']
-                print(f"No password with username: {username} and service: {service} found")
-                return None
+                    # print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
+                    return profile
+            print(f"No password with username: {username} and service: {service} found")
+            return None
     except FileNotFoundError as e:
         print("passwords.csv not found.")
         return None
 
-def edit_pass(username, service, option="autogenerate"):
+def edit_pass(username, service, masterkey, option="autogenerate"):
+    from models.password import Password
+    from auth import encrypt, decrypt, MasterKeyManager
     """
     Takes username and service and edits passwords.csv. Edits the password column in a row matching to arguments passed to the function.
 
@@ -55,7 +73,7 @@ def edit_pass(username, service, option="autogenerate"):
             for row in reader:
                 if row['username'] == username and row['service'] == service:
                     found = True
-                    print(f"Current password: {row['password']}")
+                    print(f"Current password: {colorama.Fore.MAGENTA}{decrypt(masterkey, row['password'], get_salt())}{colorama.Style.RESET_ALL}")
 
                     if option == "userinput":
                         #prompt the user to enter a new password
@@ -70,7 +88,17 @@ def edit_pass(username, service, option="autogenerate"):
                         print("Keep it safe.")
 
             # append the updated values
-                    row["password"] = new_pass
+                    verify = False
+                    while not verify:
+                        a = MasterKeyManager()
+                        prompt_for_master = input("\n To save your new password please enter your login password: ")
+                        if a.verify_master_key(get_masterkey(), prompt_for_master):
+                            verify = True
+                            salt = get_salt()
+                            master_pass = prompt_for_master
+                            new_pass_encrypted = encrypt(master_pass, new_pass, salt)
+                            row["password"] = new_pass_encrypted
+                            break
                 new_rows.append(row)
             if not found:
                 print(f" username: {username} and service: {service} was not found.")
@@ -124,15 +152,42 @@ def store_masterkey(hashed_master_key):
             with open(file_path, "w") as file:
                 file.write(hashed_master_key)
     except Exception as e:
-        return e
+        print(e)
+        return
 
 def get_masterkey():
     file_path = Path("master.hash")
     try:
         if file_path.is_file():
             with open(file_path, "r") as file:
-                return file.readline()
+                return file.read()
         else:
             print("master.hash doesnt exist. Please create")
     except Exception as e:
         print(e)
+        return
+
+def store_salt(salt):
+    file_path = Path("salt.bin")
+    try:
+        if file_path.is_file():
+            with open(file_path, "wb") as f:
+                f.write(salt)
+        else:
+            file_path.touch(exist_ok=True)
+            with open(file_path, "wb") as file:
+                file.write(salt)
+    except Exception as e:
+        return e
+
+def get_salt():
+    file_path = Path("salt.bin")
+    try:
+        if file_path.is_file():
+            with open(file_path, "rb") as file:
+                return file.read()
+        else:
+            print("salt.bin doesnt exist. Please create")
+    except Exception as e:
+        print(e)
+        return

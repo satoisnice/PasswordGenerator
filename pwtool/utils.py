@@ -5,7 +5,7 @@ def is_valid_char(c):
 
 # len("\n") == 1
 
-def get_masterkey():
+def get_hashed_masterkey():
     file_path = Path("master.hash")
     try:
         if file_path.is_file():

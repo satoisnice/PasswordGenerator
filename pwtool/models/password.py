@@ -1,11 +1,6 @@
 import random
-import csv
-from argon2 import PasswordHasher
-from pathlib import Path
 from utils import is_valid_char
-import time
-from datetime import datetime, timedelta
-from threading import Event,Thread
+from storage import save_pass
 
 UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Uppercase letters
 LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'  # Lowercase letters
@@ -103,6 +98,7 @@ class Password:
         return ''.join(valid_password)
     
     def save_pw(self):
+<<<<<<< HEAD:pwtool/models.py
         pass_file = Path("passwords.csv")
 
         if pass_file.is_file():
@@ -208,3 +204,6 @@ class TimeOut:
             
     def has_time_over(self):
         return datetime.now() >= self.future_time
+=======
+        save_pass(self.username, self.service, self.password)
+>>>>>>> 45b72413fb47bd12aeb9de9e279c973a7f2b2991:pwtool/models/password.py
