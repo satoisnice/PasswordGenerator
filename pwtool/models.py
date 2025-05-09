@@ -193,3 +193,18 @@ class TimeOut:
     def restart(self):
         self.stop()
         self.start()
+    
+    def is_running(self):
+        if self.event.is_set():
+            return False
+        return True
+    
+    def time_over(self):
+        while True:
+            now = datetime.now()
+            countdown = self.future_time - now
+            if countdown.total_seconds() <= 0:
+                return True
+            
+    def has_time_over(self):
+        return datetime.now() >= self.future_time

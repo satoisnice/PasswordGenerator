@@ -1,6 +1,7 @@
 import csv
 import colorama
 from models import Password
+from pathlib import Path
 
 def view_pass(username, service):
     '''

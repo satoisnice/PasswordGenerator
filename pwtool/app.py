@@ -10,7 +10,7 @@ except ImportError:
     print("colorama not found. Installing...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
     import colorama
-from models import Password
+from models import Password, TimeOut
 from storage import view_pass, edit_pass, delete_pass
 
 style = get_style({
