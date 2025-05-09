@@ -16,7 +16,7 @@ def save_pass(username, service, password):
             writer = csv.writer(file)
             writer.writerows([
                 ["username","service","password"],
-                username, service, password
+                [username, service, password]
             ])
 
 def view_pass(username, service):
