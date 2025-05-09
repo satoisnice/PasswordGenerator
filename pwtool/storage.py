@@ -1,5 +1,4 @@
-import csv
-import colorama
+import csv, colorama
 from pathlib import Path
 
 def save_pass(username, service, password):
@@ -16,7 +15,7 @@ def save_pass(username, service, password):
             writer = csv.writer(file)
             writer.writerows([
                 ["username","service","password"],
-                username, service, password
+                [username, service, password]
             ])
 
 def view_pass(username, service):
@@ -38,11 +37,10 @@ def view_pass(username, service):
                         "service": row["service"],
                         "username": row["username"],
                         "password": row["password"] 
-                    }
-                    # print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
-                    return profile
+                        }
+                    return profile['password']
             print(f"No password with username: {username} and service: {service} found")
-            return None
+            return
     except FileNotFoundError as e:
         print("passwords.csv not found.")
         return None
@@ -84,7 +82,7 @@ def edit_pass(username, service, masterkey, option="autogenerate"):
                     else:   
                         temp_pw_obj = Password(username=username, service=service)
                         new_pass = temp_pw_obj.password
-                        print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pass}{colorama.Style.RESET_ALL}")
+                        print(f"Your new password is: {colorama.Fore.MAGENTA + new_pass + colorama.Style.RESET_ALL}")
                         print("Keep it safe.")
 
             # append the updated values
@@ -141,8 +139,7 @@ def delete_pass(username, service):
         print("passwords.csv does not exist", e)
         return
     
-def store_masterkey(hashed_master_key):
-    file_path = Path("master.hash")
+def store_masterkey(hashed_master_key, file_path = Path("master.hash")):
     try:
         if file_path.is_file():
             with open(file_path, "w") as f:
@@ -155,8 +152,7 @@ def store_masterkey(hashed_master_key):
         print(e)
         return
 
-def get_masterkey():
-    file_path = Path("master.hash")
+def get_masterkey(file_path = Path("master.hash")):
     try:
         if file_path.is_file():
             with open(file_path, "r") as file:
