@@ -1,6 +1,6 @@
 import time
 from unittest.mock import patch
-from models import App
+from pwtool.models import App
 
 # Test for App class
 def test_app_login_success():
