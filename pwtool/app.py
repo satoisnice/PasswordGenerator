@@ -12,9 +12,10 @@ except ImportError:
     import colorama
 from models.app import App
 from models.password import Password
-from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt
+from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, check_masterkey
 from auth import initial_setup, encrypt, decrypt 
 import threading
+import getpass
 
 
 style = get_style({
@@ -157,8 +158,7 @@ if __name__ == "__main__":
     print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
     print("pwtool is a CLI utility for managing passwords.\n")
 
-    master_path = Path("master.hash")
-    if not master_path.exists():
+    if not check_masterkey():
         initial_setup()
     
     app = App()
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     while True:
         if not app.is_session_active():
             while True:
-                master_pass = input("Your password:")
+                master_pass = getpass.getpass("Your password:")
                 if app.login(master_pass):
                     break
                 print("incorrect password. Try again")
