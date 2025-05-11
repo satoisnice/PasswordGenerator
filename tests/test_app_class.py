@@ -1,10 +1,10 @@
 import time
 from unittest.mock import patch
-from pwtool.models import App
+from pwtool.models.app import App
 
 # Test for App class
 def test_app_login_success():
-    with patch("models.MasterKeyManager.verify_master_key", return_value=True):
+    with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=True):
         app = App(timeout_minutes=5)
         app.hashed_master_key = "mock_hashed_key"
         result, masterkey = app.login("test_password")
@@ -13,7 +13,7 @@ def test_app_login_success():
         assert app.masterkey == "test_password"
 
 def test_app_login_failure():
-    with patch("models.MasterKeyManager.verify_master_key", return_value=False):
+    with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=False):
         app = App(timeout_minutes=5)
         app.hashed_master_key = "mock_hashed_key"
         result = app.login("wrong_password")

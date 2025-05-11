@@ -1,5 +1,6 @@
 import pytest
-from auth import encrypt, decrypt
+import pwtool.storage
+from pwtool.auth import encrypt, decrypt
 
 def test_encrypt_decrypt():
     master_password = "TestMasterPassword"

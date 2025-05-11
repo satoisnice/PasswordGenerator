@@ -1,5 +1,6 @@
 import pytest
-from models import Password, App
+from pwtool.models.app import App
+from pwtool.models.password import Password
 from unittest.mock import patch, MagicMock
 
 # Test for Password class
@@ -19,7 +20,7 @@ def test_password_generation():
     assert any(char in '!@#$%^&*()_+-={}[]|:;\"\'<>,.?/~`' for char in password.password)  # At least one special character
 
 def test_password_save():
-    with patch("models.save_pass") as mock_save_pass:
+    with patch("pwtool.models.password.save_pass") as mock_save_pass:
         password = Password(length=16, service="test_service", username="test_user")
         password.save_pw()
         mock_save_pass.assert_called_once_with("test_user", "test_service", password.password)
