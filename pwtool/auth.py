@@ -12,9 +12,9 @@ import os
 from pathlib import Path
 from storage import store_masterkey, store_salt, get_salt
 from InquirerPy import inquirer
-import colorama
+import colorama, keyring
 
-class MasterKeyManager:
+class MasterKeyManager():
     def __init__(self):
         self.ph = PasswordHasher()
     
@@ -46,12 +46,12 @@ def derive_fernet_key_argon2(password, salt):
     return base64.b64encode(key)
 
 def initial_setup(password=None):
-    master_file = Path("master.hash")
     salt_file = Path("salt.bin")
     manager = MasterKeyManager()
 
     # maseter key handling
-    if master_file.exists() and master_file.stat().st_size > 0:
+    password = keyring.get_password("pwtool", "admin")
+    if password:
         print("Master password already set.")
         confirm = inquirer.confirm(
             message="Would you like to overwrite the master password?"
@@ -60,12 +60,13 @@ def initial_setup(password=None):
             new_pass = input("Enter new master password: ")
             hashed_pw = manager.derive_master_key(new_pass)
             store_masterkey(hashed_pw)
+
     else:
-        if not password:
+        if password is None:
             password = input("Create a master password: ")
         hashed_pw = manager.derive_master_key(password)
         store_masterkey(hashed_pw)
-        print("Master password set.")
+        print("Master password set.\n")
 
     # salt handling
     if salt_file.exists() and salt_file.stat().st_size > 0:

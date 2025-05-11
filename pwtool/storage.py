@@ -1,4 +1,4 @@
-import csv, colorama
+import csv, colorama, keyring
 from pathlib import Path
 
 def save_pass(username, service, password):
@@ -139,26 +139,35 @@ def delete_pass(username, service):
         print("passwords.csv does not exist", e)
         return
     
-def store_masterkey(hashed_master_key, file_path = Path("master.hash")):
+def store_masterkey(hashed_master_key):
     try:
-        if file_path.is_file():
-            with open(file_path, "w") as f:
-                f.write(hashed_master_key)
-        else:
-            file_path.touch(exist_ok=True)
-            with open(file_path, "w") as file:
-                file.write(hashed_master_key)
+        keyring.set_password("pwtool", "admin", hashed_master_key)
     except Exception as e:
         print(e)
         return
 
-def get_masterkey(file_path = Path("master.hash")):
+def check_masterkey():
     try:
-        if file_path.is_file():
-            with open(file_path, "r") as file:
-                return file.read()
+        password = keyring.get_password("pwtool", "admin") 
+        if password is None:
+            print("No login password set")
+            return False
         else:
-            print("master.hash doesnt exist. Please create")
+            print("password already set")
+            return True
+    except Exception as e:
+        print(e)
+        return
+
+
+def get_masterkey():
+    try:
+        password = keyring.get_password("pwtool", "admin")
+        if password:
+            return keyring.get_password("pwtool", "admin")
+        else:
+            print("login password not set")
+            return
     except Exception as e:
         print(e)
         return
