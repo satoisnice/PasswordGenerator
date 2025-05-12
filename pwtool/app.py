@@ -72,8 +72,8 @@ def view_all():
             for row in reader:
                 salt = get_salt()
                 pw = decrypt(app.masterkey, row["password"], salt)
-                print(f"""{colorama.Fore.WHITE + row["username"] + colorama.Style.RESET_ALL},{colorama.Fore.BLUE + row["service"] + colorama.Style.RESET_ALL}
-Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}""")
+                print(f"""{"username:" + colorama.Fore.BLUE + row["username"] + colorama.Style.RESET_ALL}\n{"service:" + colorama.Fore.BLUE + row["service"] + colorama.Style.RESET_ALL}
+Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
     except FileNotFoundError as e:
         print("passwords.csv not found.")
         return None
