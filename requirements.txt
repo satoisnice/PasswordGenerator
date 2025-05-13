@@ -3,3 +3,4 @@ inquirerpy
 pyfiglet
 argon2-cffi
 cryptography
+Flask

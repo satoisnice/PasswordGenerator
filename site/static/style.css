@@ -1,0 +1,32 @@
+*{
+    padding: 0px;
+    margin: 0px;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+body{
+    height: 100vh;
+    background:linear-gradient(135deg,#6518b3,#400270);
+}
+/* HOME PAGE */
+#home_title{
+    position: absolute;
+    top: 20%;
+    left: 45%;
+}
+#home_box{
+    width: 650px;
+    height: 300px;
+    border-radius: 20px;
+    background-color: #ffffff;
+    position: absolute;
+    top: 30%;
+    left: 30%;
+}
+#home_box p{
+    background-color: #006ec6;
+
+}
+#d_load{
+    background-color: #400270;
+}
