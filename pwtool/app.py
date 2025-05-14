@@ -1,9 +1,8 @@
-import sys
-import time
+import sys, time, threading, csv
+
 from pathlib import Path
 try:
-    import colorama
-    import pyfiglet
+    import colorama, pyfiglet
     from InquirerPy import inquirer, get_style
     from InquirerPy.base.control import Choice
 except ImportError:
@@ -13,9 +12,10 @@ except ImportError:
     import colorama
 from models.app import App
 from models.password import Password
-from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt
+from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, check_masterkey
 from auth import initial_setup, encrypt, decrypt 
 import threading
+import getpass
 
 
 style = get_style({
@@ -54,12 +54,29 @@ def generate_and_save_password():
 
 def get_and_view_password(username, service):
     profile = view_pass(username, service)
+    if not profile:
+        return None
     password = profile["password"]
     salt = get_salt()
     pw = decrypt(app.masterkey, password, salt)
-    print(f"Service: {colorama.Fore.MAGENTA + username}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + service}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + pw} {colorama.Style.RESET_ALL}")
+    print(f"""
+    Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL},
+    Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
+    Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}
+    """)
     
-
+def view_all():
+    try:
+        with open("passwords.csv", 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                salt = get_salt()
+                pw = decrypt(app.masterkey, row["password"], salt)
+                print(f"""{"username:" + colorama.Fore.BLUE + row["username"] + colorama.Style.RESET_ALL}\n{"service:" + colorama.Fore.BLUE + row["service"] + colorama.Style.RESET_ALL}
+Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
+    except FileNotFoundError as e:
+        print("passwords.csv not found.")
+        return None
 
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
@@ -88,6 +105,7 @@ def main(app):
         choices=[
             "Generate password",
             "View password",
+            "View all",
             "Edit password",
             "Delete password",
             "Exit"
@@ -98,19 +116,22 @@ def main(app):
     ).execute()
 
     if action == "Exit":
-       exit_app() 
+        exit_app() 
 
     if not app.is_session_active():
         print("session expired. please login again")
         return
 
     if action == "Generate password":
-       generate_and_save_password()
+        generate_and_save_password()
 
     if action == "View password":
-            username, service = get_username_and_service() 
-            # view_pass(username, service)
-            get_and_view_password(username, service)
+        username, service = get_username_and_service() 
+        # view_pass(username, service)
+        get_and_view_password(username, service)
+
+    if action == "View all":
+        view_all()    
         
     if action == "Edit password":
         username = inquirer.text(message="Enter username:").execute()
@@ -137,8 +158,7 @@ if __name__ == "__main__":
     print("\n", colorama.Fore.BLUE + pwtool + colorama.Fore.RESET)
     print("pwtool is a CLI utility for managing passwords.\n")
 
-    master_path = Path("master.hash")
-    if not master_path.exists():
+    if not check_masterkey():
         initial_setup()
     
     app = App()
@@ -147,7 +167,7 @@ if __name__ == "__main__":
     while True:
         if not app.is_session_active():
             while True:
-                master_pass = input("Your password:")
+                master_pass = getpass.getpass("Your password:")
                 if app.login(master_pass):
                     break
                 print("incorrect password. Try again")

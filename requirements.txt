@@ -1,5 +1,7 @@
-colorama
-inquirerpy
-pyfiglet
-argon2-cffi
-cryptography
+colorama        # styling
+inquirerpy      # option selection
+pyfiglet        # logo
+argon2-cffi     # login encryption
+cryptography    # CSV encryption 
+pytest          # testing
+keyring
