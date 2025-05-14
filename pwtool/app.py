@@ -10,10 +10,10 @@ except ImportError:
     print("colorama not found. Installing...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "colorama"])
     import colorama
-from models.app import App
-from models.password import Password
-from storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, check_masterkey
-from auth import initial_setup, encrypt, decrypt 
+from pwtool.models.app import App
+from pwtool.models.password import Password
+from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, check_masterkey
+from pwtool.auth import initial_setup, encrypt, decrypt 
 import threading
 import getpass
 

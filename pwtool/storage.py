@@ -38,7 +38,7 @@ def view_pass(username, service):
                         "username": row["username"],
                         "password": row["password"] 
                         }
-                    return profile['password']
+                    return profile 
             print(f"No password with username: {username} and service: {service} found")
             return
     except FileNotFoundError as e:
