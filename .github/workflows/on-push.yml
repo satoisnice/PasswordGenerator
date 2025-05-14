@@ -32,7 +32,7 @@ jobs:
   create-pull-request:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ success() }}
+    if: ${{ success() && github.ref_name != 'main' }}
     permissions:
       contents: write
       pull-requests: write
