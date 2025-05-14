@@ -4,3 +4,4 @@ pyfiglet        # logo
 argon2-cffi     # login encryption
 cryptography    # CSV encryption 
 pytest          # testing
+keyring
