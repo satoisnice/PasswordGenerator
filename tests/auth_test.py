@@ -21,4 +21,5 @@ def test_encrypt_decrypt():
     decrypted_password = decrypt(master_password, encrypted_password_str, salt)
 
     # Ensure the decrypted password matches the original password
+    # test
     assert decrypted_password == password
