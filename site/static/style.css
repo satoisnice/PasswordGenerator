@@ -22,11 +22,34 @@ body{
     position: absolute;
     top: 30%;
     left: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
-#home_box p{
+#txt_box{
+    width: 250px;
+    padding: 3px;
     background-color: #006ec6;
-
+    color: #400270;
+    text-align: center;
 }
 #d_load{
+    margin: 10px 0px 0px 0px;
     background-color: #400270;
+    padding: 5px;
+    border: solid 2px #400270;
+    text-align: center;
+}
+#d_load:hover{
+    border: solid 2px #400270;
+    background-color: #ffffff;
+    transition-duration: 500ms;
+    transition-property: background-color;
+}
+#d_load a:hover{
+    color: #400270;
+}
+#d_load  a{
+    text-decoration: none;
 }

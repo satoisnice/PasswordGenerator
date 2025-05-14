@@ -1,4 +1,7 @@
 from flask import Flask, render_template, send_file
+import io
+import os
+import zipfile
 
 app = Flask(__name__)
 
@@ -12,7 +15,7 @@ def download():
     return send_file(
         zip_path,
         as_attachment=True,
-        download_name='PWtool',
+        download_name='PWtool.zip',
         mimetype='application/zip'
     )
 
