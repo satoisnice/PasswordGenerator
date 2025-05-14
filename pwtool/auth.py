@@ -2,7 +2,7 @@ import base64, os
 
 from InquirerPy import inquirer
 from pathlib import Path
-from storage import store_masterkey, store_salt, get_salt
+from pwtool.storage import store_masterkey, store_salt, get_salt
 
 from argon2 import PasswordHasher
 from argon2.low_level import hash_secret_raw, Type
@@ -10,7 +10,7 @@ from cryptography.fernet import Fernet
 import base64
 import os
 from pathlib import Path
-from storage import store_masterkey, store_salt, get_salt
+# from storage import store_masterkey, store_salt, get_salt
 from InquirerPy import inquirer
 import colorama, keyring
 
