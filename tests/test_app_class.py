@@ -29,7 +29,8 @@ def test_app_session_active():
 def test_app_session_timeout():
     app = App(timeout_minutes=5)
     app.logged_in = True
-    app.last_active = time.time() - 3600  # 1 hour of inactivity
+    app.last_active = time.time() - 3600  # Simulate 1 hour of inactivity
+    # test
     assert app.is_session_active() is False
 
 def test_app_logout():
