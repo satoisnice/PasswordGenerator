@@ -33,7 +33,18 @@ def test_store_masterkey(mock_creds):
     store_masterkey("fakekey123")
     mock_creds.assert_called_once_with("pwtool", "admin", "fakekey123")
 
-# proper encryption test
+# encrypt test
+def test_encrypt():
+    master_pass = "StrongPassword1!"
+    password = "Secret123"
+    salt=b"1234567890123456"
+
+    encrypted = encrypt(master_pass, password, salt)
+
+    assert isinstance(encrypted, bytes) # check if in binary
+    assert len(encrypted) > 0
+
+# proper decryption test
 @patch("pwtool.auth.derive_fernet_key_argon2", return_value=b"f" * 32)
 @patch("pwtool.auth.Fernet")
 def test_decrypt(mock_fernet_class, mock_derive):
