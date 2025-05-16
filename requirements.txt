@@ -4,3 +4,4 @@ pyfiglet
 argon2-cffi
 cryptography
 Flask
+requests
