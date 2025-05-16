@@ -159,7 +159,6 @@ def check_masterkey():
         print(e)
         return
 
-
 def get_masterkey():
     try:
         password = keyring.get_password("pwtool", "admin")
