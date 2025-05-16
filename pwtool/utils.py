@@ -6,6 +6,7 @@ def is_valid_char(c):
 # len("\n") == 1
 # hi
 #  hihihi
+# hihihahdhaha
 
 def get_hashed_masterkey():
     file_path = Path("master.hash")
