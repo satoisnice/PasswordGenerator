@@ -1,6 +1,8 @@
 import pytest
+import keyring
+from unittest.mock import patch
 import pwtool.storage
-from pwtool.auth import encrypt, decrypt
+from pwtool.auth import encrypt, decrypt, store_masterkey
 
 def test_encrypt_decrypt():
     master_password = "TestMasterPassword"
@@ -23,3 +25,8 @@ def test_encrypt_decrypt():
     # Ensure the decrypted password matches the original password
     # test
     assert decrypted_password == password
+
+@patch('keyring.set_password')
+def test_store_masterkey(mock_creds):
+    store_masterkey("fakekey123")
+    mock_creds.assert_called_once_with("pwtool", "admin", "fakekey123")
