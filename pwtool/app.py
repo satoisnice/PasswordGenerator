@@ -60,7 +60,7 @@ def get_and_view_password(username, service):
     salt = get_salt()
     pw = decrypt(app.masterkey, password, salt)
     print(f"""
-    Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL},
+    Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL}
     Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
     Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}
     """)
