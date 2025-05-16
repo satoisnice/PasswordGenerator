@@ -81,7 +81,10 @@ Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
     time.sleep(1)
-    app.logout()
+    try:
+        app.logout()
+    except Exception as e:
+        sys.exit(0)
     sys.exit(0)
 
 def get_username_and_service():
