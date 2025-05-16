@@ -4,6 +4,4 @@ env/
 *.csv
 master.hash
 salt.bin
-app.spec
-build/
-dist/
+.pytest_cache

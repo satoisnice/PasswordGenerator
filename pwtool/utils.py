@@ -4,6 +4,7 @@ def is_valid_char(c):
     return c.isprintable() and c not in "\n\r\t\x0b\x0c"
 
 # len("\n") == 1
+# hi
 
 def get_hashed_masterkey():
     file_path = Path("master.hash")

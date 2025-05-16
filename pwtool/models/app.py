@@ -1,5 +1,6 @@
-from auth import MasterKeyManager 
-from utils import get_hashed_masterkey 
+from pwtool.auth import MasterKeyManager 
+from pwtool.utils import get_hashed_masterkey 
+from pwtool.storage import get_masterkey
 import time
 
 class App:
@@ -8,14 +9,14 @@ class App:
         self.timeout = timeout_minutes * 60
         self.last_active = None
         self.logged_in = False
-        self.hashed_master_key = get_hashed_masterkey()
+        self.hashed_master_key = get_masterkey()
         
     
     def login(self, password ):
         if self.masterkey_manager.verify_master_key(self.hashed_master_key, password):
            self.logged_in = True
            self.last_active = time.time()
-           print("login successful")
+           print("\nlogin successful\n")
            self.masterkey = password
            return True, self.masterkey 
         else:

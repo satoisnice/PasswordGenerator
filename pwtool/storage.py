@@ -1,5 +1,4 @@
-import csv
-import colorama
+import csv, colorama, keyring
 from pathlib import Path
 
 def save_pass(username, service, password):
@@ -38,18 +37,17 @@ def view_pass(username, service):
                         "service": row["service"],
                         "username": row["username"],
                         "password": row["password"] 
-                    }
-                    # print(f"Service: {colorama.Fore.MAGENTA + profile['service']}\n{colorama.Style.RESET_ALL}Username: {colorama.Fore.MAGENTA + profile['username']}\n{colorama.Style.RESET_ALL}Password: {colorama.Fore.MAGENTA + profile['password']} {colorama.Style.RESET_ALL}")
-                    return profile
+                        }
+                    return profile 
             print(f"No password with username: {username} and service: {service} found")
-            return None
+            return
     except FileNotFoundError as e:
         print("passwords.csv not found.")
         return None
 
 def edit_pass(username, service, masterkey, option="autogenerate"):
-    from models.password import Password
-    from auth import encrypt, decrypt, MasterKeyManager
+    from pwtool.models.password import Password
+    from pwtool.auth import encrypt, decrypt, MasterKeyManager
     """
     Takes username and service and edits passwords.csv. Edits the password column in a row matching to arguments passed to the function.
 
@@ -84,7 +82,7 @@ def edit_pass(username, service, masterkey, option="autogenerate"):
                     else:   
                         temp_pw_obj = Password(username=username, service=service)
                         new_pass = temp_pw_obj.password
-                        print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pass}{colorama.Style.RESET_ALL}")
+                        print(f"Your new password is: {colorama.Fore.MAGENTA + new_pass + colorama.Style.RESET_ALL}")
                         print("Keep it safe.")
 
             # append the updated values
@@ -142,27 +140,34 @@ def delete_pass(username, service):
         return
     
 def store_masterkey(hashed_master_key):
-    file_path = Path("master.hash")
     try:
-        if file_path.is_file():
-            with open(file_path, "w") as f:
-                f.write(hashed_master_key)
-        else:
-            file_path.touch(exist_ok=True)
-            with open(file_path, "w") as file:
-                file.write(hashed_master_key)
+        keyring.set_password("pwtool", "admin", hashed_master_key)
     except Exception as e:
         print(e)
         return
 
-def get_masterkey():
-    file_path = Path("master.hash")
+def check_masterkey():
     try:
-        if file_path.is_file():
-            with open(file_path, "r") as file:
-                return file.read()
+        password = keyring.get_password("pwtool", "admin") 
+        if password is None:
+            print("No login password set")
+            return False
         else:
-            print("master.hash doesnt exist. Please create")
+            print("password already set")
+            return True
+    except Exception as e:
+        print(e)
+        return
+
+
+def get_masterkey():
+    try:
+        password = keyring.get_password("pwtool", "admin")
+        if password:
+            return keyring.get_password("pwtool", "admin")
+        else:
+            print("login password not set")
+            return
     except Exception as e:
         print(e)
         return

@@ -12,4 +12,5 @@ https://pip.pypa.io/en/stable/installation/
 
 
 # To test it out
-`py app.py` 
+windows: `py -m app.py`
+linux: `python3 -m pwtool.app`
