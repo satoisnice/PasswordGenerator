@@ -1,7 +1,8 @@
 import pytest
 import keyring
-from unittest.mock import patch
-import pwtool.storage
+from ast import literal_eval
+from cryptography.fernet import Fernet
+from unittest.mock import patch, MagicMock
 from pwtool.auth import encrypt, decrypt, store_masterkey
 
 def test_encrypt_decrypt():
@@ -26,7 +27,23 @@ def test_encrypt_decrypt():
     # test
     assert decrypted_password == password
 
+# masterkey storage test
 @patch('keyring.set_password')
 def test_store_masterkey(mock_creds):
     store_masterkey("fakekey123")
     mock_creds.assert_called_once_with("pwtool", "admin", "fakekey123")
+
+# proper encryption test
+@patch("pwtool.auth.derive_fernet_key_argon2", return_value=b"f" * 32)
+@patch("pwtool.auth.Fernet")
+def test_decrypt(mock_fernet_class, mock_derive):
+    mock_fernet = MagicMock()
+    mock_fernet.decrypt.return_value = b"password"
+    mock_fernet_class.return_value = mock_fernet
+
+    encrypted = "b'fake_encrypted'"
+    result = decrypt("masterpw", encrypted, b'salt')
+
+    mock_derive.assert_called_once_with("masterpw", b'salt')
+    mock_fernet.decrypt.assert_called_once_with(b'fake_encrypted')
+    assert result == "password"
