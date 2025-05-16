@@ -1,6 +1,6 @@
-from auth import MasterKeyManager 
-from utils import get_hashed_masterkey 
-from storage import get_masterkey
+from pwtool.auth import MasterKeyManager 
+from pwtool.utils import get_hashed_masterkey 
+from pwtool.storage import get_masterkey
 import time
 
 class App:

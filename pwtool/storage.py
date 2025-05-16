@@ -38,7 +38,7 @@ def view_pass(username, service):
                         "username": row["username"],
                         "password": row["password"] 
                         }
-                    return profile['password']
+                    return profile 
             print(f"No password with username: {username} and service: {service} found")
             return
     except FileNotFoundError as e:
@@ -46,8 +46,8 @@ def view_pass(username, service):
         return None
 
 def edit_pass(username, service, masterkey, option="autogenerate"):
-    from models.password import Password
-    from auth import encrypt, decrypt, MasterKeyManager
+    from pwtool.models.password import Password
+    from pwtool.auth import encrypt, decrypt, MasterKeyManager
     """
     Takes username and service and edits passwords.csv. Edits the password column in a row matching to arguments passed to the function.
 
