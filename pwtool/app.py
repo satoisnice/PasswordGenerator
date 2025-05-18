@@ -1,5 +1,4 @@
-import sys, time, threading, csv
-
+import sys, time, threading, json, threading, getpass 
 from pathlib import Path
 try:
     import colorama, pyfiglet
@@ -12,11 +11,10 @@ except ImportError:
     import colorama
 from pwtool.models.app import App
 from pwtool.models.password import Password
-from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, check_masterkey
-from pwtool.auth import initial_setup, encrypt, decrypt 
-import threading
-import getpass
+from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, get_masterkey, read_json_file, b64_decode, b64_encode
+from pwtool.auth import initial_setup_password, initial_setup_salt, encrypt, decrypt 
 
+PASS_FILE = Path("passwords.json")
 
 style = get_style({
     "questionmark": "#ff8000",
@@ -47,10 +45,37 @@ def generate_and_save_password():
         print("Generated password:")
         print(colorama.Fore.MAGENTA + a.password)
         sys.stdout.write(colorama.Style.RESET_ALL)
-        print("\nyou can now copy your password, keep it safe")
+        print("\nyou can now copy your password") # Chagne to auto copy to clipboard
         salt = get_salt()
         encrypted_pass = encrypt(app.masterkey, a.password, salt)
         save_pass(a.username, a.service, encrypted_pass)
+
+def update_password(username, service, masterkey, option="autogenerate"):
+    salt = get_salt()
+    data = read_json_file(PASS_FILE)
+
+    for entry in data:
+        if entry["username"] == username and entry["service"] == service:
+            current_pw = decrypt(masterkey, b64_decode(entry["password"]), salt)
+            print(f"Current password: {colorama.Fore.MAGENTA}{current_pw}{colorama.Style.RESET_ALL}")
+            break
+        else:
+            print("No matching entry found")
+        
+    if option == "userinput":
+        new_pw = input("Type your new password: ")
+        if new_pw == "":
+            print("No changes made.")
+            return
+    
+    else:
+        from pwtool.models.password import Password
+        new_pw = Password(username=username, service=service).password
+        print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pw}{colorama.Style.RESET_ALL}")
+    
+    encrypted_new_pw = encrypt(masterkey, new_pw, salt)
+    edit_pass(username, service, encrypted_new_pw)
+
 
 def get_and_view_password(username, service):
     profile = view_pass(username, service)
@@ -67,15 +92,16 @@ def get_and_view_password(username, service):
     
 def view_all():
     try:
-        with open("passwords.csv", 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                salt = get_salt()
-                pw = decrypt(app.masterkey, row["password"], salt)
-                print(f"""{"username:" + colorama.Fore.BLUE + row["username"] + colorama.Style.RESET_ALL}\n{"service:" + colorama.Fore.BLUE + row["service"] + colorama.Style.RESET_ALL}
+        data = read_json_file(PASS_FILE) 
+        for entry in data:
+            password_b64 = entry["password"]
+            password_bytes = b64_decode(password_b64)
+            salt = get_salt()
+            pw = decrypt(app.masterkey, password_bytes, salt)
+            print(f"""{"username:" + colorama.Fore.BLUE + entry["username"] + colorama.Style.RESET_ALL}\n{"service:" + colorama.Fore.BLUE + entry["service"] + colorama.Style.RESET_ALL}
 Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
-    except FileNotFoundError as e:
-        print("passwords.csv not found.")
+    except FileNotFoundError:
+        print("passwords.json not found")
         return None
 
 def exit_app():
@@ -146,7 +172,7 @@ def main(app):
                 Choice(name="Input password", value="userinput")
             ]
         ).execute()
-        edit_pass(username, service, master_pass, option=action)
+        update_password(username, service, master_pass, option=action)
 
     if action == "Delete password":
         username, service = get_username_and_service()
@@ -163,8 +189,10 @@ if __name__ == "__main__":
         print("pwtool is a CLI utility for managing passwords.")
         print(f"{colorama.Fore.YELLOW}CTRL + C {colorama.Fore.RESET}to close pwtool at any time.\n")
         try:
-            if not check_masterkey():
-                initial_setup()
+            if get_masterkey() == None:
+                initial_setup_password()
+            if get_salt() == None:
+                initial_setup_salt()
 
             app = App()
         except KeyboardInterrupt as e:

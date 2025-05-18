@@ -6,7 +6,7 @@ from pwtool.storage import store_masterkey, store_salt, get_salt
 
 from argon2 import PasswordHasher
 from argon2.low_level import hash_secret_raw, Type
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 import base64
 import os
 from pathlib import Path
@@ -45,11 +45,9 @@ def derive_fernet_key_argon2(password, salt):
 
     return base64.b64encode(key)
 
-def initial_setup(password=None):
-    salt_file = Path("salt.bin")
+def initial_setup_password(password=None):
     manager = MasterKeyManager()
 
-    # maseter key handling
     password = keyring.get_password("pwtool", "admin")
     if password:
         print("Master password already set.")
@@ -68,10 +66,12 @@ def initial_setup(password=None):
         store_masterkey(hashed_pw)
         print("Master password set.\n")
 
-    # salt handling
+def initial_setup_salt():
+    salt_file = Path("salt.bin")
     if salt_file.exists() and salt_file.stat().st_size > 0:
         print("Salt already set.")
         salt = get_salt()
+
     else:
         salt = os.urandom(16)
         store_salt(salt)
@@ -83,13 +83,22 @@ def encrypt(master_password: str, password: str, salt: bytes):
     f = Fernet(key)
     return f.encrypt(password_bytes)
 
-from ast import literal_eval
-def decrypt(master_password: str, encrypted_password, salt: bytes):
+def decrypt(master_password: str, encrypted_password_bytes: bytes, salt: bytes):
     key = derive_fernet_key_argon2(master_password, salt)
     f = Fernet(key)
+
     try:
-        encrypted_password_literal = literal_eval(encrypted_password)
+        decrypted_bytes = f.decrypt(encrypted_password_bytes)
+    except TypeError:
+        print(f"{colorama.Fore.RED}WARNING:{colorama.Style.RESET_ALL} Expected bytes, password is likely base64 encoded. Please update your password entry.")
+        return encrypted_password_bytes
+    except InvalidToken: 
+        print(f"\n{colorama.Fore.RED}WARNING: {colorama.Style.RESET_ALL}Decryption failed. Possibly wrong master password or corrupted data.\n")
+        return encrypted_password_bytes
+    
+    try:
+        return decrypted_bytes.decode("utf-8")
     except Exception as e:
-        print(f"\n{colorama.Fore.RED}WARNING: {colorama.Style.RESET_ALL}Password is not encrypted please edit your password so it will be encrypted\n")
-        return encrypted_password 
-    return f.decrypt(encrypted_password_literal).decode()
+        print(f"\n{colorama.Fore.RED}WARNING: {colorama.Style.RESET_ALL}Decryption failed. Possibly wrong master password or corrupted data.\n")
+        print(e)
+        return None
