@@ -108,10 +108,27 @@ Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
         print("passwords.json not found")
         return None
 
+def encrypt_and_store(file_path, data, key):
+    try:
+        data = read_json_file(file_path)
+        nonce, encrypted_data = encrypt_content(key, data)
+
+        encrypted_data = {
+            "nonce": b64_encode(nonce),
+            "ciphrtext": b64_encode(encrypted_data)
+        }
+
+    except Exception as e:
+        print("Error encrypting and storing files", e)
+
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
     time.sleep(1)
     try:
+
+        
+        app.passwords_key = None
+        app.files_key = None
         app.logout()
     except Exception as e:
         sys.exit(0)
