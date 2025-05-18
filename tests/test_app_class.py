@@ -4,13 +4,23 @@ from pwtool.models.app import App
 
 # Test for App class
 def test_app_login_success():
-    with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=True):
+    mock_password = "test_password"
+    mock_hashed_key = "mock_hashed_key"
+    mock_derived_key = b"mock_derived_key_bytes"
+    mock_salt = b"mock_salt"
+
+    with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=True), \
+        patch("pwtool.app.get_salt", return_value=mock_salt), \
+        patch("pwtool.models.app.derive_fernet_key_argon2", return_value=mock_derived_key): 
+
         app = App(timeout_minutes=5)
-        app.hashed_master_key = "mock_hashed_key"
-        result, masterkey = app.login("test_password")
+        app.hashed_master_key = mock_hashed_key
+        
+        result = app.login(mock_password)
+
         assert result is True
         assert app.logged_in is True
-        assert app.masterkey == "test_password"
+        assert app.derived_key == mock_derived_key
 
 def test_app_login_failure():
     with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=False):
