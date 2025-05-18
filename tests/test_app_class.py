@@ -10,7 +10,7 @@ def test_app_login_success():
     mock_salt = b"mock_salt"
 
     with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=True), \
-        patch("pwtool.app.get_salt", return_value=mock_salt), \
+        patch("pwtool.models.app.get_salt", return_value=mock_salt), \
         patch("pwtool.models.app.derive_subkey", return_value=mock_derived_key): 
 
         app = App(timeout_minutes=5)
