@@ -12,7 +12,7 @@ except ImportError:
 from pwtool.models.app import App
 from pwtool.models.password import Password
 from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, get_masterkey, read_json_file, b64_decode, b64_encode
-from pwtool.auth import initial_setup_password, initial_setup_salt, encrypt, decrypt 
+from pwtool.auth import initial_setup_password, initial_setup_salt, encrypt, decrypt, derive_subkey, encrypt_content
 
 PASS_FILE = Path("passwords.json")
 AGE_PASS_FILE = Path("passwords.json.age")
@@ -44,23 +44,23 @@ def encrypt_with_age():
     subprocess.run
 
 def generate_and_save_password():
-        a = Password()
-        print(f"length of your password: {a.length}\n")
-        print("Generated password:")
-        print(colorama.Fore.MAGENTA + a.password)
-        sys.stdout.write(colorama.Style.RESET_ALL)
-        print("\nyou can now copy your password") # Chagne to auto copy to clipboard
-        salt = get_salt()
-        encrypted_pass = encrypt(a.password, salt, key=app.derived_key)
-        save_pass(a.username, a.service, encrypted_pass)
+    a = Password()
+    print(f"length of your password: {a.length}\n")
+    print("Generated password:")
+    print(colorama.Fore.MAGENTA + a.password)
+    sys.stdout.write(colorama.Style.RESET_ALL)
+    print("\nyou can now copy your password") # Chagne to auto copy to clipboard
+    pw_salt = get_salt("passwords")
+    encrypted_pass = encrypt(a.password, pw_salt, key=app.passwords_key)
+    save_pass(a.username, a.service, encrypted_pass)
 
 def update_password(username, service, masterkey, option="autogenerate"):
-    salt = get_salt()
+    pw_salt = get_salt("passwords")
     data = read_json_file(PASS_FILE)
 
     for entry in data:
         if entry["username"] == username and entry["service"] == service:
-            current_pw = decrypt(b64_decode(entry["password"]), salt, key=app.derived_key)
+            current_pw = decrypt(b64_decode(entry["password"]), pw_salt, key=app.passwords_key)
             print(f"Current password: {colorama.Fore.MAGENTA}{current_pw}{colorama.Style.RESET_ALL}")
             break
     else:
@@ -77,7 +77,7 @@ def update_password(username, service, masterkey, option="autogenerate"):
         new_pw = Password(username=username, service=service).password
         print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pw}{colorama.Style.RESET_ALL}")
     
-    encrypted_new_pw = encrypt(new_pw, salt, key=app.derived_key)
+    encrypted_new_pw = encrypt(new_pw, pw_salt, key=app.passwords_key)
     edit_pass(username, service, encrypted_new_pw)
 
 
@@ -86,8 +86,8 @@ def get_and_view_password(username, service):
     if not profile:
         return None
     password = profile["password"]
-    salt = get_salt()
-    pw = decrypt(password, salt, key=app.derived_key)
+    salt = get_salt("passwords")
+    pw = decrypt(password, salt, key=app.passwords_key)
     print(f"""
     Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL}
     Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
@@ -100,8 +100,8 @@ def view_all():
         for entry in data:
             password_b64 = entry["password"]
             password_bytes = b64_decode(password_b64)
-            salt = get_salt()
-            pw = decrypt(password_bytes, salt, key=app.derived_key)
+            salt = get_salt("passwords")
+            pw = decrypt(password_bytes, salt, key=app.passwords_key)
             print(f"""{"username:" + colorama.Fore.BLUE + entry["username"] + colorama.Style.RESET_ALL}\n{"service:" + colorama.Fore.BLUE + entry["service"] + colorama.Style.RESET_ALL}
 Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
     except FileNotFoundError:
@@ -174,7 +174,7 @@ def main(app):
                 Choice(name="Input password", value="userinput")
             ]
         ).execute()
-        update_password(username, service, app.derived_key, option=action)
+        update_password(username, service, app.passwords_key, option=action)
 
     if action == "Delete password":
         username, service = get_username_and_service()

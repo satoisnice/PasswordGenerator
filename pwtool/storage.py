@@ -1,8 +1,7 @@
 import colorama, keyring, json, base64
 from pathlib import Path
 from pwtool.utils import prompt_master_password
-
-PASS_FILE = Path("passwords.json")
+from pwtool.constants.paths import PASS_FILE, SALT_FILE
 
 # helper functions
 def b64_encode(encrypted_bytes):
@@ -130,28 +129,42 @@ def delete_masterkey():
         print(e)
         return
 
-def store_salt(salt):
-    file_path = Path("salt.bin")
+def store_salts(salts: dict):
+    encoded_salts = {}
+
+    for name, salt in salts.items():
+        encoded_salt = b64_encode(salts[name])
+        encoded_salts[name] = encoded_salt
+        
     try:
-        if file_path.is_file():
-            with open(file_path, "wb") as f:
-                f.write(salt)
-        else:
-            file_path.touch(exist_ok=True)
-            with open(file_path, "wb") as file:
-                file.write(salt)
+        write_json_file(SALT_FILE, encoded_salts)
     except Exception as e:
-        return e
+        print("failed to store salts",e)
+    
+        
 
 
-def get_salt():
-    file_path = Path("salt.bin")
+def get_salt(salt_type = None):
     try:
-        if file_path.is_file():
-            with open(file_path, "rb") as file:
-                return file.read()
-        else:
-            return None
-    except Exception as e:
-        print(e)
+        if SALT_FILE.exists():
+            salt_dict = read_json_file(SALT_FILE)
+
+            if salt_type == "passwords":
+                return b64_decode(salt_dict["passwords_salt"])
+            elif salt_type == "files":
+                return b64_decode(salt_dict["files_salt"])
+            else:
+                decoded_salts = {}
+                decoded_passwords_salt = b64_decode(salt_dict["passwords_salt"])
+                decoded_files_salt = b64_decode(salt_dict["files_salt"])
+                decoded_salts["passwords_salt"] = decoded_passwords_salt
+                decoded_salts["files_salt"] = decoded_files_salt
+                return decoded_salts
+
+    except json.JSONDecodeError:
+        print("Json format error")
         return
+    except Exception as e:
+        print('something went wrong', e)
+        return
+    return None
