@@ -59,8 +59,8 @@ def update_password(username, service, masterkey, option="autogenerate"):
             current_pw = decrypt(masterkey, b64_decode(entry["password"]), salt)
             print(f"Current password: {colorama.Fore.MAGENTA}{current_pw}{colorama.Style.RESET_ALL}")
             break
-        else:
-            print("No matching entry found")
+    else:
+        print("No matching entry found")
         
     if option == "userinput":
         new_pw = input("Type your new password: ")
