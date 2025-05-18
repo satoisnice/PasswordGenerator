@@ -2,17 +2,21 @@ import base64, os, colorama, keyring
 
 from InquirerPy import inquirer
 from pathlib import Path
-from pwtool.storage import store_masterkey, store_salt, get_salt
-
+from pwtool.storage import store_masterkey, store_salts, get_salt
 from argon2 import PasswordHasher
 from argon2.low_level import hash_secret_raw, Type
 from cryptography.fernet import Fernet, InvalidToken
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 import base64
 import os
 from pathlib import Path
 # from storage import store_masterkey, store_salt, get_salt
 from InquirerPy import inquirer
 import colorama, keyring
+from pwtool.constants.paths import SALT_FILE
 
 class MasterKeyManager():
     def __init__(self):
@@ -45,6 +49,15 @@ def derive_fernet_key_argon2(password, salt):
 
     return base64.b64encode(key)
 
+def derive_subkey(base_key: bytes, content: str) -> bytes:
+    return HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=content.encode(),
+        backend=default_backend()
+    ).derive(base_key)
+
 def initial_setup_password(password=None):
     manager = MasterKeyManager()
 
@@ -67,15 +80,23 @@ def initial_setup_password(password=None):
         print("Master password set.\n")
 
 def initial_setup_salt():
-    salt_file = Path("salt.bin")
-    if salt_file.exists() and salt_file.stat().st_size > 0:
+    salts = get_salt
+    if SALT_FILE.exists() and SALT_FILE.stat().st_size > 0:
         print("Salt already set.")
-        salt = get_salt()
-
+        salt_dict = get_salt()
+        passwords_salt = salt_dict["passwords_salt"]
+        files_salt = salt_dict["files_salt"]
     else:
-        salt = os.urandom(16)
-        store_salt(salt)
+        passwords_salt = os.urandom(16)
+        files_salt = os.urandom(16)
+        salts = {
+            "passwords_salt": passwords_salt,
+            "files_salt": files_salt
+        }
+        store_salts(salts)
         print("Salt created and saved.")
+    return passwords_salt, files_salt 
+
 
 def encrypt(password: str, salt: bytes, master_password: str = None, key: bytes = None):    
     if key is None:
@@ -104,3 +125,14 @@ def decrypt(encrypted_password_bytes: bytes, salt: bytes, master_password: str =
         print(f"\n{colorama.Fore.RED}WARNING: {colorama.Style.RESET_ALL}Decryption failed. Possibly wrong master password or corrupted data.\n")
         print(e)
         return None
+
+def encrypt_content(key: bytes, content):
+    content_bytes = content.encode()
+    nonce = os.urandom(12)
+    aesgcm = AESGCM(key)
+    ciphertext = aesgcm .encrypt(nonce, content_bytes, None)
+    return nonce, ciphertext
+
+def decrypt_content(key: bytes, nonce: bytes, ciphertext: bytes):
+    aesgcm = AESGCM(key)
+    return aesgcm.decrypt(nonce, ciphertext, None)

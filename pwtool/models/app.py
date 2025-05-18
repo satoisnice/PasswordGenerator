@@ -10,7 +10,8 @@ class App:
         self.last_active = None
         self.logged_in = False
         self.hashed_master_key = get_masterkey()
-        self.derived_key = None
+        self.passwords_key = None
+        self.files_key = None
         
     
     def login(self, password ):
@@ -18,8 +19,11 @@ class App:
            self.logged_in = True
            self.last_active = time.time()
            print("\nlogin successful\n")
-           salt = get_salt()
-           self.derived_key = derive_fernet_key_argon2(password, salt)
+
+           pw_salt = get_salt("passwords")
+           self.passwords_key = derive_fernet_key_argon2(password, pw_salt)
+           files_salt = get_salt("files")
+           self.files_key = derive_fernet_key_argon2(password, files_salt)
            return True 
         else:
            return False

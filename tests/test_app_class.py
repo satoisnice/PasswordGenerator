@@ -20,7 +20,7 @@ def test_app_login_success():
 
         assert result is True
         assert app.logged_in is True
-        assert app.derived_key == mock_derived_key
+        assert app.passwords_key == mock_derived_key
 
 def test_app_login_failure():
     with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=False):

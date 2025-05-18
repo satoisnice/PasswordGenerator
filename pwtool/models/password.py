@@ -67,7 +67,12 @@ class Password:
                 service = input("For which service is this password for?\n")
             else:
                 try:
-                    pw_len = int(input("Type desired length of the password (16 character minimum):"))
+                    pw_len_input = input("Type desired length of the password (16 character minimum):")
+                    if pw_len_input.strip() == "": 
+                        pw_len = 16
+                    else:
+                        pw_len = int(pw_len_input)
+
                     if pw_len < 16:
                         print("Password must be at least 16 characters. For more information about password security: https://bitwarden.com/blog/how-long-should-my-password-be/")
                     else:

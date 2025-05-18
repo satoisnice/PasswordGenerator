@@ -8,4 +8,4 @@ salt.bin
 build
 dist
 app.spec
-passwords.json
+*.json
