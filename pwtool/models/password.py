@@ -59,18 +59,21 @@ class Password:
         self.password = self.gen_pw() 
 
     def get_inputs(self):
-        username = input("Enter username:\n")
-        service = input("For which service is this password for?\n")
-
+        username, service = "",""
         while True:
-            try:
-                pw_len = int(input("Type desired length of the password (16 character minimum):"))
-                if pw_len < 16:
-                    print("Password must be at least 16 characters. For more information about password security: https://bitwarden.com/blog/how-long-should-my-password-be/")
-                else:
-                    return pw_len, service, username
-            except ValueError as e:
-                print("Enter a valid number for password length", e)
+            if username == "":
+                username = input("Enter username:\n")
+            elif service == "":
+                service = input("For which service is this password for?\n")
+            else:
+                try:
+                    pw_len = int(input("Type desired length of the password (16 character minimum):"))
+                    if pw_len < 16:
+                        print("Password must be at least 16 characters. For more information about password security: https://bitwarden.com/blog/how-long-should-my-password-be/")
+                    else:
+                        return pw_len, service, username
+                except ValueError as e:
+                    print("Enter a valid number for password length", e)
 
     def gen_pw(self):
         if self.length < 4:

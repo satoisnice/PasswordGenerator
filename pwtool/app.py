@@ -114,8 +114,8 @@ def exit_app():
     sys.exit(0)
 
 def get_username_and_service():
-    username = inquirer.text(message="Enter username:").execute()
-    service = inquirer.text(message="Enter the service:").execute()
+    username = inquirer.text(message="Enter username:",validate=lambda result: len(result) > 0,invalid_message="Input cannot be empty.").execute()
+    service = inquirer.text(message="Enter the service:",validate=lambda result: len(result) > 0,invalid_message="Input cannot be empty.").execute()
     return username, service
 
 def session_tracker(app):
@@ -163,8 +163,7 @@ def main(app):
         view_all()    
         
     if action == "Edit password":
-        username = inquirer.text(message="Enter username:").execute()
-        service = inquirer.text(message="Enter the service:").execute()
+        username, service = get_username_and_service()  
         action = inquirer.select(
             message="Select action",
             choices=[

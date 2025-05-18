@@ -1,4 +1,4 @@
-import base64, os
+import base64, os, colorama, keyring
 
 from InquirerPy import inquirer
 from pathlib import Path
