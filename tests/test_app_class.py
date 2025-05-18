@@ -15,6 +15,7 @@ def test_app_login_success():
 
         app = App(timeout_minutes=5)
         app.hashed_master_key = mock_hashed_key
+        app.argon2_key = mock_password
         
         result = app.login(mock_password)
 
