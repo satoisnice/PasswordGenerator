@@ -5,3 +5,7 @@ env/
 master.hash
 salt.bin
 .pytest_cache
+build
+dist
+app.spec
+passwords.json

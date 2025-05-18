@@ -15,3 +15,17 @@ def get_hashed_masterkey():
             print("master.hash doesnt exist. Please create")
     except Exception as e:
         print(e)
+
+import getpass
+
+def prompt_master_password():
+    from pwtool.auth import MasterKeyManager
+    manager = MasterKeyManager()
+    for attempt in range(3):
+        master_pass = getpass.getpass("Enter master password: ")
+        if manager.verify_master_key(master_pass):
+            return master_pass
+        else:
+            print("Incorrect master password. Try again.")
+    print("Too many failed attempts. Aborting.")
+    return None

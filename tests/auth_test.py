@@ -17,11 +17,8 @@ def test_encrypt_decrypt():
     assert encrypted_password is not None
     assert len(encrypted_password) > 0
 
-    # Convert the encrypted password to a string representation
-    encrypted_password_str = repr(encrypted_password)
-
     # Decrypt the password
-    decrypted_password = decrypt(master_password, encrypted_password_str, salt)
+    decrypted_password = decrypt(master_password, encrypted_password, salt)
 
     # Ensure the decrypted password matches the original password
     # test
@@ -52,7 +49,7 @@ def test_decrypt(mock_fernet_class, mock_derive):
     mock_fernet.decrypt.return_value = b"password"
     mock_fernet_class.return_value = mock_fernet
 
-    encrypted = "b'fake_encrypted'"
+    encrypted = b'fake_encrypted'
     result = decrypt("masterpw", encrypted, b'salt')
 
     mock_derive.assert_called_once_with("masterpw", b'salt')
