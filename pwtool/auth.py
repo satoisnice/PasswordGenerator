@@ -77,14 +77,16 @@ def initial_setup_salt():
         store_salt(salt)
         print("Salt created and saved.")
 
-def encrypt(master_password: str, password: str, salt: bytes):    
+def encrypt(password: str, salt: bytes, master_password: str = None, key: bytes = None):    
+    if key is None:
+        key = derive_fernet_key_argon2(master_password, salt)
     password_bytes = password.encode()
-    key = derive_fernet_key_argon2(master_password, salt)
     f = Fernet(key)
     return f.encrypt(password_bytes)
 
-def decrypt(master_password: str, encrypted_password_bytes: bytes, salt: bytes):
-    key = derive_fernet_key_argon2(master_password, salt)
+def decrypt(encrypted_password_bytes: bytes, salt: bytes, master_password: str = None, key: bytes = None):
+    if key is None:
+        key = derive_fernet_key_argon2(master_password, salt)
     f = Fernet(key)
 
     try:

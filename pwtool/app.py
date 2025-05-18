@@ -1,4 +1,4 @@
-import sys, time, threading, json, threading, getpass 
+import sys, time, threading, json, threading, getpass, subprocess
 from pathlib import Path
 try:
     import colorama, pyfiglet
@@ -15,6 +15,7 @@ from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_sal
 from pwtool.auth import initial_setup_password, initial_setup_salt, encrypt, decrypt 
 
 PASS_FILE = Path("passwords.json")
+AGE_PASS_FILE = Path("passwords.json.age")
 
 style = get_style({
     "questionmark": "#ff8000",
@@ -39,6 +40,9 @@ style = get_style({
     "spinner_text": "",
                    })
 
+def encrypt_with_age():
+    subprocess.run
+
 def generate_and_save_password():
         a = Password()
         print(f"length of your password: {a.length}\n")
@@ -47,7 +51,7 @@ def generate_and_save_password():
         sys.stdout.write(colorama.Style.RESET_ALL)
         print("\nyou can now copy your password") # Chagne to auto copy to clipboard
         salt = get_salt()
-        encrypted_pass = encrypt(app.masterkey, a.password, salt)
+        encrypted_pass = encrypt(a.password, salt, key=app.derived_key)
         save_pass(a.username, a.service, encrypted_pass)
 
 def update_password(username, service, masterkey, option="autogenerate"):
@@ -56,7 +60,7 @@ def update_password(username, service, masterkey, option="autogenerate"):
 
     for entry in data:
         if entry["username"] == username and entry["service"] == service:
-            current_pw = decrypt(masterkey, b64_decode(entry["password"]), salt)
+            current_pw = decrypt(b64_decode(entry["password"]), salt, key=app.derived_key)
             print(f"Current password: {colorama.Fore.MAGENTA}{current_pw}{colorama.Style.RESET_ALL}")
             break
     else:
@@ -73,7 +77,7 @@ def update_password(username, service, masterkey, option="autogenerate"):
         new_pw = Password(username=username, service=service).password
         print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pw}{colorama.Style.RESET_ALL}")
     
-    encrypted_new_pw = encrypt(masterkey, new_pw, salt)
+    encrypted_new_pw = encrypt(new_pw, salt, key=app.derived_key)
     edit_pass(username, service, encrypted_new_pw)
 
 
@@ -83,7 +87,7 @@ def get_and_view_password(username, service):
         return None
     password = profile["password"]
     salt = get_salt()
-    pw = decrypt(app.masterkey, password, salt)
+    pw = decrypt(password, salt, key=app.derived_key)
     print(f"""
     Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL}
     Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
@@ -97,7 +101,7 @@ def view_all():
             password_b64 = entry["password"]
             password_bytes = b64_decode(password_b64)
             salt = get_salt()
-            pw = decrypt(app.masterkey, password_bytes, salt)
+            pw = decrypt(password_bytes, salt, key=app.derived_key)
             print(f"""{"username:" + colorama.Fore.BLUE + entry["username"] + colorama.Style.RESET_ALL}\n{"service:" + colorama.Fore.BLUE + entry["service"] + colorama.Style.RESET_ALL}
 Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
     except FileNotFoundError:
@@ -126,7 +130,6 @@ def session_tracker(app):
             app.login(input("Your password:"))
 
 def main(app):
-    master_pass = app.masterkey
     threading.Thread(target=session_tracker, args=(app,), daemon=True).start()
 
     action = inquirer.select(
@@ -171,7 +174,7 @@ def main(app):
                 Choice(name="Input password", value="userinput")
             ]
         ).execute()
-        update_password(username, service, master_pass, option=action)
+        update_password(username, service, app.derived_key, option=action)
 
     if action == "Delete password":
         username, service = get_username_and_service()
@@ -193,6 +196,7 @@ if __name__ == "__main__":
             if get_salt() == None:
                 initial_setup_salt()
 
+
             app = App()
         except KeyboardInterrupt as e:
             exit_app()
@@ -202,6 +206,7 @@ if __name__ == "__main__":
                 while True:
                     master_pass = getpass.getpass("Your password:")
                     if app.login(master_pass):
+                        master_pass = None
                         break
                     print("incorrect password. Try again")
             try:
