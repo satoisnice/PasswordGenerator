@@ -1,6 +1,6 @@
-from pwtool.auth import MasterKeyManager 
+from pwtool.auth import MasterKeyManager, derive_fernet_key_argon2 
 from pwtool.utils import get_hashed_masterkey 
-from pwtool.storage import get_masterkey
+from pwtool.storage import get_masterkey, get_salt
 import time
 
 class App:
@@ -10,6 +10,7 @@ class App:
         self.last_active = None
         self.logged_in = False
         self.hashed_master_key = get_masterkey()
+        self.derived_key = None
         
     
     def login(self, password ):
@@ -17,8 +18,9 @@ class App:
            self.logged_in = True
            self.last_active = time.time()
            print("\nlogin successful\n")
-           self.masterkey = password
-           return True, self.masterkey 
+           salt = get_salt()
+           self.derived_key = derive_fernet_key_argon2(password, salt)
+           return True 
         else:
            return False
 
