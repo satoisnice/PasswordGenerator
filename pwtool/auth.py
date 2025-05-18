@@ -34,7 +34,7 @@ class MasterKeyManager():
             return False
 
 
-def derive_fernet_key_argon2(password, salt):
+def derive_fernet_key_argon2(password, salt): #should be reanamed to derive_master_key but would be a hassle to change
     password_bytes = password.encode()
 
     key = hash_secret_raw(
@@ -49,14 +49,16 @@ def derive_fernet_key_argon2(password, salt):
 
     return base64.b64encode(key)
 
-def derive_subkey(base_key: bytes, content: str) -> bytes:
-    return HKDF(
+def derive_subkey(base_key: bytes, salt: bytes, content: str) -> bytes:
+    key = HKDF(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=None,
+        salt=salt,
         info=content.encode(),
         backend=default_backend()
     ).derive(base_key)
+
+    return base64.urlsafe_b64encode(key)
 
 def initial_setup_password(password=None):
     manager = MasterKeyManager()
@@ -86,10 +88,13 @@ def initial_setup_salt():
         salt_dict = get_salt()
         passwords_salt = salt_dict["passwords_salt"]
         files_salt = salt_dict["files_salt"]
+        base_salt = salt_dict["base_salt"]
     else:
         passwords_salt = os.urandom(16)
         files_salt = os.urandom(16)
+        base_salt = os.urandom(16)
         salts = {
+            "base_salt": base_salt,
             "passwords_salt": passwords_salt,
             "files_salt": files_salt
         }

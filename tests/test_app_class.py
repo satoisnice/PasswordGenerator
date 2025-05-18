@@ -10,11 +10,12 @@ def test_app_login_success():
     mock_salt = b"mock_salt"
 
     with patch("pwtool.models.password.MasterKeyManager.verify_master_key", return_value=True), \
-        patch("pwtool.app.get_salt", return_value=mock_salt), \
-        patch("pwtool.models.app.derive_fernet_key_argon2", return_value=mock_derived_key): 
+        patch("pwtool.models.app.get_salt", return_value=mock_salt), \
+        patch("pwtool.models.app.derive_subkey", return_value=mock_derived_key): 
 
         app = App(timeout_minutes=5)
         app.hashed_master_key = mock_hashed_key
+        app.argon2_key = mock_password
         
         result = app.login(mock_password)
 

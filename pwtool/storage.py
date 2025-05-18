@@ -153,6 +153,8 @@ def get_salt(salt_type = None):
                 return b64_decode(salt_dict["passwords_salt"])
             elif salt_type == "files":
                 return b64_decode(salt_dict["files_salt"])
+            elif salt_type == "base":
+                return b64_decode(salt_dict["base_salt"])
             else:
                 decoded_salts = {}
                 decoded_passwords_salt = b64_decode(salt_dict["passwords_salt"])
