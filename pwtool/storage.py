@@ -23,8 +23,8 @@ def read_json_file(path):
     except FileNotFoundError:
         return []
 
-def write_json_file(path, data):
-    with open(path, 'w') as f:
+def write_json_file(path, data, mode='w'):
+    with open(path, mode) as f:
         json.dump(data, f, indent=4)
 
 

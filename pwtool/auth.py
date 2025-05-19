@@ -132,7 +132,11 @@ def decrypt(encrypted_password_bytes: bytes, salt: bytes, master_password: str =
         return None
 
 def encrypt_content(key: bytes, content):
-    content_bytes = content.encode()
+    if isinstance(content, str):
+        content_bytes = content.encode()
+    else:
+        content_bytes = content
+
     nonce = os.urandom(12)
     aesgcm = AESGCM(key)
     ciphertext = aesgcm .encrypt(nonce, content_bytes, None)
