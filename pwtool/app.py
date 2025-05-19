@@ -46,6 +46,10 @@ def encrypt_with_age():
 
 def generate_and_save_password():
     a = Password()
+    if (view_pass(a.username, a.service)) != None:
+        print(f"\nEntry already exists for username: {a.username} and service: {a.service}")
+        print("If you want to change this password please use the edit option\n")
+        return
     print(f"length of your password: {a.length}\n")
     print("Generated password:")
     print(colorama.Fore.MAGENTA + a.password)
@@ -84,7 +88,8 @@ def update_password(username, service, masterkey, option="autogenerate"):
 
 def get_and_view_password(username, service):
     profile = view_pass(username, service)
-    if not profile:
+    if profile == None:
+        print(f"No password with username: {username} and service: {service} found")
         return None
     password = profile["password"]
     salt = get_salt("passwords")
@@ -149,8 +154,8 @@ def decrypt_backup(file_path, key, name):
             if name == "passwords":
                 write_json_file(PASS_FILE, decrypted_json)
 
-        write_path = Path("backup.unenc") 
-        write_json_file(write_path, combined, mode="w")
+        # write_path = Path("backup.unenc") 
+        # write_json_file(write_path, combined, mode="w")
     except Exception as e:
         print(e)
 
@@ -197,6 +202,7 @@ def main(app):
             "View all",
             "Edit password",
             "Delete password",
+            "Edit login password",
             "Exit"
         ],
         default="Select password",
