@@ -1,4 +1,4 @@
-import sys, time, threading, json, threading, getpass, subprocess
+import sys, time, threading, threading, getpass, subprocess, json, base64
 from pathlib import Path
 try:
     import colorama, pyfiglet
@@ -11,8 +11,9 @@ except ImportError:
     import colorama
 from pwtool.models.app import App
 from pwtool.models.password import Password
-from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, get_masterkey, read_json_file, b64_decode, b64_encode
-from pwtool.auth import initial_setup_password, initial_setup_salt, encrypt, decrypt, derive_subkey, encrypt_content
+from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, get_masterkey, read_json_file, b64_decode, b64_encode, write_json_file
+from pwtool.auth import initial_setup_password, initial_setup_salt, encrypt, decrypt, encrypt_content, decrypt_content
+from pwtool.constants.paths import PASS_FILE, SALT_FILE
 
 PASS_FILE = Path("passwords.json")
 AGE_PASS_FILE = Path("passwords.json.age")
@@ -108,29 +109,68 @@ Password:{colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}\n""")
         print("passwords.json not found")
         return None
 
-def encrypt_and_store(file_path, data, key):
+def backup_data(file_path, key):
     try:
+        key = base64.urlsafe_b64decode(key)
         data = read_json_file(file_path)
-        nonce, encrypted_data = encrypt_content(key, data)
 
+        if isinstance(data, (dict, list)):
+            data = json.dumps(data)
+
+        nonce, encrypted_data = encrypt_content(key, data)
         encrypted_data = {
             "nonce": b64_encode(nonce),
-            "ciphrtext": b64_encode(encrypted_data)
+            "ciphertext": b64_encode(encrypted_data)
         }
 
+        return encrypted_data
     except Exception as e:
         print("Error encrypting and storing files", e)
+
+def decrypt_backup(file_path, key, name):
+    try:
+        key = base64.urlsafe_b64decode(key)
+        data = read_json_file(file_path)
+
+        combined = {}
+        for name, entry in data.items():
+            nonce = b64_decode(entry["nonce"])
+            ciphertext = b64_decode(entry["ciphertext"])
+            decrypted_data = decrypt_content(key, nonce, ciphertext)
+            decrypted_str = decrypted_data.decode("utf-8")
+            try:
+                decrypted_json = json.loads(decrypted_str)
+            except json.JSONDecodeError:
+                decrypted_json = decrypted_str
+            
+            combined[name] = decrypted_json
+            if name == "salt":
+                write_json_file(SALT_FILE, decrypted_json, mode="w")
+            if name == "passwords":
+                write_json_file(PASS_FILE, decrypted_json)
+
+        write_path = Path("backup.unenc") 
+        write_json_file(write_path, combined, mode="w")
+    except Exception as e:
+        print(e)
 
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
     time.sleep(1)
     try:
+        if app.logged_in:
+            encrypted_data = { 
+                "salt": backup_data(SALT_FILE, app.files_key),
+                "passwords": backup_data(PASS_FILE, app.files_key)
+            }
 
-        
+            write_json_file("backup.enc", encrypted_data) 
+
         app.passwords_key = None
         app.files_key = None
         app.logout()
     except Exception as e:
+        print(e)
         sys.exit(0)
     sys.exit(0)
 
@@ -224,6 +264,8 @@ if __name__ == "__main__":
                     master_pass = getpass.getpass("Your password:")
                     if app.login(master_pass):
                         master_pass = None
+                        decrypt_backup(Path("backup.enc"), app.files_key, "salt")
+                        decrypt_backup(Path("backup.enc"), app.files_key, "passwords")
                         break
                     print("incorrect password. Try again")
             try:
