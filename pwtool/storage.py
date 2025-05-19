@@ -58,7 +58,6 @@ def view_pass(username, service):
             entry["password"] = b64_decode(entry["password"])
             return entry
 
-    print(f"No password with username: {username} and service: {service} found")
     return None
 
 
