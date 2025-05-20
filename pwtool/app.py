@@ -1,4 +1,4 @@
-import sys, time, threading, threading, getpass, subprocess, json, base64
+import sys, time, threading, threading, getpass, subprocess, json, base64, os
 from pathlib import Path
 try:
     import colorama, pyfiglet
@@ -159,7 +159,7 @@ def decrypt_backup(file_path, key, name):
         # write_path = Path("backup.unenc") 
         # write_json_file(write_path, combined, mode="w")
     except Exception as e:
-        print(e)
+        pass
 
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
@@ -172,7 +172,11 @@ def exit_app():
             }
 
             write_json_file("backup.enc", encrypted_data) 
-
+            if os.path.exists(PASS_FILE):
+                os.remove(PASS_FILE) 
+            if os.path.exists(SALT_FILE):
+                os.remove(SALT_FILE)
+            
         app.passwords_key = None
         app.files_key = None
         app.logout()
