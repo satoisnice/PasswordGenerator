@@ -94,12 +94,14 @@ def get_and_view_password(username, service):
     password = profile["password"]
     salt = get_salt("passwords")
     pw = decrypt(password, salt, key=app.passwords_key)
-    print(f"""
+    try:
+        print(f"""
     Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL}
     Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
     Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}
     """)
-    
+    except TypeError:
+        print(f"{colorama.Fore.RED}ERROR: {colorama.Style.RESET_ALL}login password changed please update your password entries.")
 def view_all():
     try:
         data = read_json_file(PASS_FILE) 
@@ -202,7 +204,7 @@ def main(app):
             "View all",
             "Edit password",
             "Delete password",
-            "Edit login password",
+            # "Edit login password",
             "Exit"
         ],
         default="Select password",
@@ -227,6 +229,9 @@ def main(app):
 
     if action == "View all":
         view_all()    
+    
+    if action == "Edit login password":
+        initial_setup_password()
         
     if action == "Edit password":
         username, service = get_username_and_service()  
