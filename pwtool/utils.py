@@ -1,4 +1,5 @@
 from pathlib import Path
+import pyperclip, colorama
 
 def is_valid_char(c):
     return c.isprintable() and c not in "\n\r\t\x0b\x0c"
@@ -29,3 +30,10 @@ def prompt_master_password():
             print("Incorrect master password. Try again.")
     print("Too many failed attempts. Aborting.")
     return None
+
+def copy(password):
+    try:
+        pyperclip.copy(password)
+        print(f"{colorama.Fore.GREEN}Password copied to clipboard") # Chagne to auto copy to clipboard
+    except Exception:
+        print("Error copying to clipboard, Linux requires a clipboard system such as xclip for this feature to work.")

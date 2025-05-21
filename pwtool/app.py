@@ -1,4 +1,4 @@
-import sys, time, threading, threading, getpass, subprocess, json, base64
+import sys, time, threading, threading, getpass, subprocess, json, base64 
 from pathlib import Path
 try:
     import colorama, pyfiglet
@@ -14,6 +14,7 @@ from pwtool.models.password import Password
 from pwtool.storage import view_pass, edit_pass, delete_pass, save_pass, get_salt, get_masterkey, read_json_file, b64_decode, b64_encode, write_json_file
 from pwtool.auth import initial_setup_password, initial_setup_salt, encrypt, decrypt, encrypt_content, decrypt_content
 from pwtool.constants.paths import PASS_FILE, SALT_FILE
+from pwtool.utils import copy
 
 PASS_FILE = Path("passwords.json")
 AGE_PASS_FILE = Path("passwords.json.age")
@@ -54,7 +55,7 @@ def generate_and_save_password():
     print("Generated password:")
     print(colorama.Fore.MAGENTA + a.password)
     sys.stdout.write(colorama.Style.RESET_ALL)
-    print("\nyou can now copy your password") # Chagne to auto copy to clipboard
+    copy(a.password) 
     pw_salt = get_salt("passwords")
     encrypted_pass = encrypt(a.password, pw_salt, key=app.passwords_key)
     save_pass(a.username, a.service, encrypted_pass)
@@ -81,7 +82,7 @@ def update_password(username, service, masterkey, option="autogenerate"):
         from pwtool.models.password import Password
         new_pw = Password(username=username, service=service).password
         print(f"Your new password is: {colorama.Fore.MAGENTA}{new_pw}{colorama.Style.RESET_ALL}")
-    
+    copy(new_pw)
     encrypted_new_pw = encrypt(new_pw, pw_salt, key=app.passwords_key)
     edit_pass(username, service, encrypted_new_pw)
 
@@ -99,7 +100,8 @@ def get_and_view_password(username, service):
     Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
     Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}
     """)
-    
+    copy(pw) 
+
 def view_all():
     try:
         data = read_json_file(PASS_FILE) 
@@ -202,7 +204,6 @@ def main(app):
             "View all",
             "Edit password",
             "Delete password",
-            "Edit login password",
             "Exit"
         ],
         default="Select password",

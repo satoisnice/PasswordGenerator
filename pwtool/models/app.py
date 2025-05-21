@@ -1,7 +1,7 @@
 from pwtool.auth import MasterKeyManager, derive_fernet_key_argon2, derive_subkey
 from pwtool.utils import get_hashed_masterkey 
 from pwtool.storage import get_masterkey, get_salt
-import time
+import time, colorama
 
 class App:
     def __init__(self,  timeout_minutes=5):
@@ -19,7 +19,7 @@ class App:
         if self.masterkey_manager.verify_master_key(self.argon2_key, password):
            self.logged_in = True
            self.last_active = time.time()
-           print("\nlogin successful\n")
+           print(f"\n{colorama.Fore.GREEN}login successful{colorama.Fore.RESET}\n")
 
            base_salt = get_salt("base") 
            self.hashed_master_key = derive_fernet_key_argon2(self.argon2_key, base_salt) 
