@@ -1,4 +1,4 @@
-import sys, time, threading, threading, getpass, subprocess, json, base64 
+import sys, time, threading, threading, getpass, subprocess, json, base64, os
 from pathlib import Path
 try:
     import colorama, pyfiglet
@@ -95,13 +95,16 @@ def get_and_view_password(username, service):
     password = profile["password"]
     salt = get_salt("passwords")
     pw = decrypt(password, salt, key=app.passwords_key)
-    print(f"""
+    try:
+        print(f"""
     Service: {colorama.Fore.MAGENTA + username + colorama.Style.RESET_ALL}
     Username: {colorama.Fore.MAGENTA + service + colorama.Style.RESET_ALL}
     Password: {colorama.Fore.MAGENTA + pw + colorama.Style.RESET_ALL}
     """)
-    copy(pw) 
-
+    except TypeError:
+        print(f"{colorama.Fore.RED}ERROR: {colorama.Style.RESET_ALL}login password changed please update your password entries.")
+    copy(pw)
+    
 def view_all():
     try:
         data = read_json_file(PASS_FILE) 
@@ -159,7 +162,7 @@ def decrypt_backup(file_path, key, name):
         # write_path = Path("backup.unenc") 
         # write_json_file(write_path, combined, mode="w")
     except Exception as e:
-        print(e)
+        pass
 
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
@@ -172,7 +175,11 @@ def exit_app():
             }
 
             write_json_file("backup.enc", encrypted_data) 
-
+            if os.path.exists(PASS_FILE):
+                os.remove(PASS_FILE) 
+            if os.path.exists(SALT_FILE):
+                os.remove(SALT_FILE)
+            
         app.passwords_key = None
         app.files_key = None
         app.logout()
@@ -228,6 +235,9 @@ def main(app):
 
     if action == "View all":
         view_all()    
+    
+    if action == "Edit login password":
+        initial_setup_password()
         
     if action == "Edit password":
         username, service = get_username_and_service()  

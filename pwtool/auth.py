@@ -70,6 +70,7 @@ def initial_setup_password(password=None):
             message="Would you like to overwrite the master password?"
         ).execute()
         if confirm:
+            keyring.delete_password("pwtool", "admin")
             new_pass = input("Enter new master password: ")
             hashed_pw = manager.derive_master_key(new_pass)
             store_masterkey(hashed_pw)
