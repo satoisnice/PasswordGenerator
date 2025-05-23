@@ -1,5 +1,6 @@
 # NOTE:
 pwtool is under heavy development
+report any bug findings please
 
 # pwtool 
 pwtool is a CLI utility for managing passwords.
