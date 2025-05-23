@@ -128,41 +128,49 @@ def backup_data(file_path, key):
             data = json.dumps(data)
 
         nonce, encrypted_data = encrypt_content(key, data)
+        # print("encrypted_data:", encrypted_data)
+        # print("b64 encrypted_data", b64_encode(encrypted_data))
         encrypted_data = {
             "nonce": b64_encode(nonce),
             "ciphertext": b64_encode(encrypted_data)
         }
-
         return encrypted_data
     except Exception as e:
         print("Error encrypting and storing files", e)
 
+
+
 def decrypt_backup(file_path, key, name):
-    try:
         key = base64.urlsafe_b64decode(key)
         data = read_json_file(file_path)
-
         combined = {}
-        for name, entry in data.items():
+        print(name)
+        for entry_name, entry in data.items():
+            
             nonce = b64_decode(entry["nonce"])
+            print("decryption nonce", nonce)
             ciphertext = b64_decode(entry["ciphertext"])
             decrypted_data = decrypt_content(key, nonce, ciphertext)
             decrypted_str = decrypted_data.decode("utf-8")
             try:
                 decrypted_json = json.loads(decrypted_str)
             except json.JSONDecodeError:
+                print("erro1")
                 decrypted_json = decrypted_str
             
-            combined[name] = decrypted_json
+            combined[entry_name] = decrypted_json
+            print(decrypted_json)
             if name == "salt":
                 write_json_file(SALT_FILE, decrypted_json, mode="w")
-            if name == "passwords":
-                write_json_file(PASS_FILE, decrypted_json)
+            elif name == "passwords":
+                if isinstance(decrypted_json, (dict, list)):
+                    write_json_file(PASS_FILE, decrypted_json, mode="w")
+                else:
+                    with open(PASS_FILE, "w") as f:
+                        f.write(decrypted_json)
 
-        # write_path = Path("backup.unenc") 
-        # write_json_file(write_path, combined, mode="w")
-    except Exception as e:
-        pass
+        write_path = Path("backup.unenc") 
+        write_json_file(write_path, combined, mode="w")
 
 def exit_app():
     print(colorama.Fore.RED, "Closing pwtool...", colorama.Fore.RESET)
@@ -170,16 +178,14 @@ def exit_app():
     try:
         if app.logged_in:
             encrypted_data = { 
-                "salt": backup_data(SALT_FILE, app.files_key),
                 "passwords": backup_data(PASS_FILE, app.files_key)
             }
-
+            # print("app.files_key = ", app.files_key)
             write_json_file("backup.enc", encrypted_data) 
-            if os.path.exists(PASS_FILE):
-                os.remove(PASS_FILE) 
-            if os.path.exists(SALT_FILE):
-                os.remove(SALT_FILE)
-            
+            # if os.path.exists(PASS_FILE):
+            #     os.remove(PASS_FILE) 
+            # if os.path.exists(SALT_FILE):
+                # os.remove(SALT_FILE)
         app.passwords_key = None
         app.files_key = None
         app.logout()
@@ -267,6 +273,7 @@ if __name__ == "__main__":
         try:
             if get_masterkey() == None:
                 initial_setup_password()
+            print("salt check", get_salt())
             if get_salt() == None:
                 initial_setup_salt()
 
@@ -281,8 +288,7 @@ if __name__ == "__main__":
                     master_pass = getpass.getpass("Your password:")
                     if app.login(master_pass):
                         master_pass = None
-                        decrypt_backup(Path("backup.enc"), app.files_key, "salt")
-                        decrypt_backup(Path("backup.enc"), app.files_key, "passwords")
+                        # decrypt_backup(Path("backup.enc"), app.files_key, "passwords")
                         break
                     print("incorrect password. Try again")
             try:
