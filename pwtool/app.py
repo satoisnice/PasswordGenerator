@@ -273,7 +273,7 @@ if __name__ == "__main__":
         try:
             if get_masterkey() == None:
                 initial_setup_password()
-            print("salt check", get_salt())
+            # print("salt check", get_salt())
             if get_salt() == None:
                 initial_setup_salt()
 
