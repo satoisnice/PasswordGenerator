@@ -101,7 +101,7 @@ def initial_setup_salt():
         }
         store_salts(salts)
         print("Salt created and saved.")
-    return passwords_salt, files_salt 
+    return base_salt, passwords_salt, files_salt 
 
 
 def encrypt(password: str, salt: bytes, master_password: str = None, key: bytes = None):    
@@ -140,7 +140,7 @@ def encrypt_content(key: bytes, content):
 
     nonce = os.urandom(12)
     aesgcm = AESGCM(key)
-    ciphertext = aesgcm .encrypt(nonce, content_bytes, None)
+    ciphertext = aesgcm.encrypt(nonce, content_bytes, None)
     return nonce, ciphertext
 
 def decrypt_content(key: bytes, nonce: bytes, ciphertext: bytes):

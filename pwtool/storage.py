@@ -10,6 +10,8 @@ def b64_encode(encrypted_bytes):
 
 def b64_decode(encoded_str):
     """decode b64 string to encrypted bytes"""
+    encoded_str.strip()
+    encoded_str += "=" * ((4 - len(encoded_str) % 4) % 4)
     return base64.b64decode(encoded_str)
 
 def read_json_file(path):
@@ -148,6 +150,10 @@ def get_salt(salt_type = None):
         if SALT_FILE.exists():
             salt_dict = read_json_file(SALT_FILE)
 
+            if salt_dict is None:
+                print("get_salt error: salt could not be parsed")
+                return None
+
             if salt_type == "passwords":
                 return b64_decode(salt_dict["passwords_salt"])
             elif salt_type == "files":
@@ -166,6 +172,6 @@ def get_salt(salt_type = None):
         print("Json format error")
         return
     except Exception as e:
-        print('something went wrong', e)
+        print('get_salt error, something went wrong', e)
         return
     return None
